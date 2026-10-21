@@ -6,7 +6,7 @@ import { PLANES, decode, deltaDecode, deltaEncode, distCap, encode, rawAt, split
 import { cellOf, centerOf, gridFor, metersPerCell } from '../src/core/grid.ts';
 
 // Глушь: всё далеко, темно, пусто, лес.
-const wild: Raw = { motorway: 12750, trunk: 12750, primary: 6375, secondary: 6375, tertiary: 6375, rail: 12750, air: 25500, building: 6375, tower: 25500, light: 0.1, pop: 0, forest: 90, water: 5, open: 5 };
+const wild: Raw = { motorway: 12750, trunk: 12750, primary: 6375, secondary: 12750, tertiary: 12750, local: 6375, rail: 12750, air: 25500, building: 6375, tower: 25500, light: 0.1, pop: 0, forest: 90, water: 5, open: 5 };
 
 test('глушь: все оценки у максимума, связи нет', () => {
   const s = scores(wild);
@@ -21,6 +21,11 @@ test('у автомагистрали шумно, даже если осталь
   assert.equal(s.noise, 50);
   // Слабейший источник не улучшает оценку: tertiary в 400 м — тишина, motorway в 1250 м — всё ещё 50.
   assert.equal(scores({ ...wild, motorway: 1250, tertiary: 400 }).noise, 50);
+});
+
+test('улица в деревне: residential в 75 м — половина тишины, в 150 м — уже тихо', () => {
+  assert.equal(scores({ ...wild, local: 75 }).noise, 50);
+  assert.equal(scores({ ...wild, local: 150 }).noise, 100);
 });
 
 test('центр города: светло, людно, нет природы, связь есть', () => {
@@ -52,6 +57,7 @@ test('веса в URL: туда и обратно, мусор отвергает
 
 test('кодирование планов: расстояния с шагом, свет и плотность логарифмически, потолок 255', () => {
   assert.equal(decode('secondary', encode('secondary', 330)), 350);
+  assert.equal(decode('local', encode('local', 80)), 75);
   assert.equal(encode('motorway', 1e6), 255);
   assert.equal(decode('motorway', 255), distCap('motorway'));
   assert.ok(Math.abs(decode('light', encode('light', 1)) - 1) < 0.05);

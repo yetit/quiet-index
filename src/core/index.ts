@@ -10,7 +10,7 @@ export type Scores = Record<Layer, number>;
 export const DEFAULT_WEIGHTS: Weights = { noise: 35, dark: 25, remote: 20, nature: 20, signal: 0 };
 
 // Шум: за этим расстоянием (м) источник считается неслышным; ближе — линейно до 0 у самой дороги.
-export const NOISE_RANGE = { motorway: 2500, trunk: 2000, primary: 1200, secondary: 700, tertiary: 400, rail: 1000, air: 4000 } as const;
+export const NOISE_RANGE = { motorway: 2500, trunk: 2000, primary: 1200, secondary: 700, tertiary: 400, local: 150, rail: 1000, air: 4000 } as const; // local — residential и unclassified: улицы и проезды
 export const LIGHT_DARK = 0.25, LIGHT_BRIGHT = 50; // нВт/(см²·ср): темно ≤ 0,25, город ≥ 50 (лог-шкала)
 export const POP_MAX = 5000; // чел/км²: такая плотность и выше — 0 (лог-шкала)
 export const BUILDING_FAR = 1000; // м до ближайшего здания, где «безлюдье» по домам = 100

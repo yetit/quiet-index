@@ -17,6 +17,7 @@
   "primary",
   "secondary",
   "tertiary",
+  "local",
   "rail",
   "air",
   "building",
@@ -48,7 +49,7 @@
   "pop": "WorldPop 2020 unconstrained 100 m"
  },
  "cells": 218808,
- "bytes": 1199871,
+ "bytes": 1448361,
  "meanEncoded": {
   "mask": 1,
   "motorway": 242.1,
@@ -56,6 +57,7 @@
   "primary": 115.3,
   "secondary": 102.1,
   "tertiary": 109.4,
+  "local": 34,
   "rail": 207.5,
   "air": 220.3,
   "building": 17.2,

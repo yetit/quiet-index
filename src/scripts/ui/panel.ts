@@ -6,7 +6,7 @@ import { t } from '../i18n.ts';
 import { cssGradient } from '../map/map.ts';
 
 const VIEWS: View[] = ['index', ...LAYERS];
-const ROADS = ['motorway', 'trunk', 'primary', 'secondary', 'tertiary'] as const;
+const ROADS = ['motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'local'] as const;
 
 export function initPanel(on: { weights: () => void; view: () => void }) {
   $('.views').innerHTML = VIEWS.map((v) => `<button type="button" class="chip" role="radio" data-view="${v}" aria-checked="${v === state.view}">${t.views[v]}</button>`).join('');

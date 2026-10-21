@@ -11,12 +11,18 @@ const dir = `data/${region.id}/raw`;
 mkdirSync(dir, { recursive: true });
 
 const CLASSES = ['motorway', 'trunk', 'primary', 'secondary', 'tertiary'];
-// Съезды (motorway_link и т. п.) относим к классу основной дороги.
-const cls = (t) => CLASSES.find((c) => t.highway === c || t.highway === `${c}_link`);
+// Съезды (motorway_link и т. п.) относим к классу основной дороги; residential и unclassified — один класс local.
+const cls = (t) => CLASSES.find((c) => t.highway === c || t.highway === `${c}_link`) ?? 'local';
 
 console.log('дороги…');
 const roadEls = await overpass(`${head}way["highway"~"^(${CLASSES.join('|')})(_link)?$"];out geom;`);
 const roads = roadEls.filter((w) => w.geometry).map((w) => ({ cls: cls(w.tags), coords: line(w.geometry) }));
+// Улицы и проезды — отдельными запросами: их в разы больше, чем дорог классом выше.
+for (const h of ['residential', 'unclassified']) {
+  console.log(`${h}…`);
+  const els = await overpass(`${head}way["highway"="${h}"];out geom;`);
+  for (const w of els) if (w.geometry) roads.push({ cls: 'local', coords: line(w.geometry) });
+}
 
 console.log('железные дороги…');
 const railEls = await overpass(`${head}way["railway"="rail"]["service"!~"."];out geom;`);

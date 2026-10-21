@@ -71,7 +71,7 @@ function distancePlane(p: Plane, lines: number[][][], pts: ArrayLike<number>) {
   }
   log(`${p}: ${lines.length} линий, ${pts.length / 2} точек`);
 }
-for (const k of ['motorway', 'trunk', 'primary', 'secondary', 'tertiary'] as const) distancePlane(k, osm.roads.filter((r: { cls: string }) => r.cls === k).map((r: { coords: number[][] }) => r.coords), []);
+for (const k of ['motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'local'] as const) distancePlane(k, osm.roads.filter((r: { cls: string }) => r.cls === k).map((r: { coords: number[][] }) => r.coords), []);
 distancePlane('rail', osm.rail, []);
 distancePlane('air', osm.air, []);
 distancePlane('building', [], bld);

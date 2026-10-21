@@ -23,7 +23,7 @@ test('точка из ссылки: оценка, пять слоёв, веса 
   await painted(page);
   await expect(page.locator('.score')).toHaveText(/^\d+$/);
   await expect(page.locator('.layer-row')).toHaveCount(5);
-  await expect(page.locator('.layer-row[data-layer="noise"] .l-detail')).toContainText(/road|no road/);
+  await expect(page.locator('.layer-row[data-layer="noise"] .l-detail')).toContainText(/road|street/);
   const noise = Number(await page.locator('.layer-row[data-layer="noise"] .l-val').textContent());
   // Только вес тишины → индекс равен оценке тишины.
   for (const k of ['dark', 'remote', 'nature', 'signal']) await page.locator(`input[data-w="${k}"]`).fill('0');

@@ -1,12 +1,12 @@
 // Слои-измерения растра: по одному байту на клетку. Расстояния — в шагах unit м (255 = дальше cap),
 // свет и плотность — логарифмически, покрытие — в процентах с шагом 2 (клетка 250 м, точнее не нужно, а gzip вдвое меньше). Файл grid.gz: планарно, каждая строка —
 // разности с соседом слева (так gzip сжимает плавные поля в несколько раз лучше).
-export const PLANES = ['mask', 'motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'rail', 'air', 'building', 'tower', 'light', 'pop', 'forest', 'water', 'open'] as const;
+export const PLANES = ['mask', 'motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'local', 'rail', 'air', 'building', 'tower', 'light', 'pop', 'forest', 'water', 'open'] as const;
 export type Plane = (typeof PLANES)[number];
 export type Raw = Record<Exclude<Plane, 'mask'>, number>;
 
 // Метров в одном шаге для планов-расстояний.
-export const DIST_UNIT: Partial<Record<Plane, number>> = { motorway: 50, trunk: 50, primary: 50, secondary: 50, tertiary: 50, rail: 50, air: 100, building: 50, tower: 100 };
+export const DIST_UNIT: Partial<Record<Plane, number>> = { motorway: 50, trunk: 50, primary: 50, secondary: 50, tertiary: 50, local: 25, rail: 50, air: 100, building: 50, tower: 100 };
 export const distCap = (p: Plane) => 255 * DIST_UNIT[p]!;
 
 const LIGHT_K = 10, LIGHT_MAX = 40; // нВт/(см²·ср): 0 → 0, 40 → 255

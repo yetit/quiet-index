@@ -23,7 +23,7 @@ Every cell (~250 m, square in Web Mercator) gets five scores 0–100. Thresholds
 
 | Layer | 100 means | 0 means | Formula |
 |---|---|---|---|
-| **Quiet** | no road, railway or airport within hearing range | right on a road | `min` over sources of `distance / range`, linear; ranges: motorway 2.5 km, trunk 2 km, primary 1.2 km, secondary 700 m, tertiary 400 m, railway 1 km, airport 4 km |
+| **Quiet** | no road, street, railway or airport within hearing range | right on a road | `min` over sources of `distance / range`, linear; ranges: motorway 2.5 km, trunk 2 km, primary 1.2 km, secondary 700 m, tertiary 400 m, residential / unclassified street 150 m, railway 1 km, airport 4 km |
 | **Dark** | night radiance ≤ 0.25 nW/(cm²·sr) | ≥ 50 nW/(cm²·sr) | log scale between the two |
 | **Remote** | nobody within 2×2 km and no building within 1 km | dense city, building right here | mean of a log-scale population score (0 at ≥ 5 000 people/km²) and `distance to nearest building / 1 km` |
 | **Nature** | 2×2 km of forest and water | cropland or built-up | forest % + water % + ½ · open natural land % (shrub, grassland, bare rock, snow, wetland) |
@@ -37,7 +37,7 @@ The heavy lifting happens once, at data-build time (`npm run fetch -- montenegro
 
 | Layer | Source | Licence | Notes |
 |---|---|---|---|
-| Roads, railways, airports, buildings, cell towers, region boundary | [OpenStreetMap](https://www.openstreetmap.org/copyright) via Overpass API | ODbL 1.0 | Roads: `motorway … tertiary` and their `_link`s. Airports: aerodromes with an IATA code plus runways longer than 1.5 km. Towers: `tower:type=communication`, `communication:mobile_phone=yes`, `man_made=communications_tower`. |
+| Roads, railways, airports, buildings, cell towers, region boundary | [OpenStreetMap](https://www.openstreetmap.org/copyright) via Overpass API | ODbL 1.0 | Roads: `motorway … tertiary` with their `_link`s, plus `residential` and `unclassified` as one "street" class. Airports: aerodromes with an IATA code plus runways longer than 1.5 km. Towers: `tower:type=communication`, `communication:mobile_phone=yes`, `man_made=communications_tower`. |
 | Night lights | NASA Black Marble **VNP46A2** (VIIRS DNB, gap-filled, BRDF- and moonlight-corrected daily radiance) served by [NASA GIBS](https://www.earthdata.nasa.gov/engage/open-data-services-and-software/api/gibs-api) | NASA data: no restrictions | GIBS serves palette PNGs; radiance is recovered from the published colour map (0.1 nW bins, saturates at 38.2). Annual value = median of 24 nights (1st and 15th of each month of 2025), ~450 m pixels at zoom 8. |
 | Population | [WorldPop](https://www.worldpop.org/) 2020, 100 m, unconstrained, country file | CC BY 4.0 | Sum over the country file is 615 212 people, consistent with the census. |
 | Land cover | [ESA WorldCover](https://esa-worldcover.org/) 2021 v200, 10 m | CC BY 4.0 | Read from the Cloud-Optimized GeoTIFF overview at 80 m with HTTP range requests, only the region window. |
@@ -57,8 +57,8 @@ The derived grid in `public/data/<region>/` mixes these sources; treat it as ODb
 ## Limitations — read before trusting a number
 
 - **Heuristics, not acoustics.** Road class stands in for traffic; terrain screening, wind, speed limits and time of day are ignored. A tertiary road at 400 m counts as silent; a motorway in a tunnel counts as if on the surface.
-- **Only `tertiary` and above.** Residential, unclassified and track roads are not sources, so a village with no tertiary road scores "quiet" even with local traffic. Buildings and population catch most of that in the "remote" layer.
-- **250 m cells.** A click is matched to the cell centre, so distances can be off by up to ~180 m. Distances are stored in 50–100 m steps.
+- **Streets count only within 150 m.** `residential` and `unclassified` roads are a single class with a short range; `service`, `track` and paths are not sources at all. A busy village street and a dead-end lane look the same.
+- **250 m cells.** A click is matched to the cell centre, so distances can be off by up to ~180 m. Distances are stored in 25–100 m steps.
 - **OSM completeness.** Buildings in Montenegro are mapped well in towns and unevenly in villages; cell towers are mapped only sporadically. The "signal" layer is a hint, not coverage.
 - **Night lights** are ~450 m pixels; snow cover, fires and ship lights can raise them; 2025 only.
 - **Population** is a 2020 model (WorldPop), tourists and seasonal residents are not in it: the coast in August is busier than the map says.
