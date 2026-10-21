@@ -1,5 +1,9 @@
 # Quiet Index — Индекс тихого места
 
+[![Build and deploy](https://github.com/yetit/quiet-index/actions/workflows/deploy.yml/badge.svg)](https://github.com/yetit/quiet-index/actions/workflows/deploy.yml) [![Smoke](https://github.com/yetit/quiet-index/actions/workflows/live.yml/badge.svg)](https://github.com/yetit/quiet-index/actions/workflows/live.yml)
+
+**Демо: <https://yetit.github.io/quiet-index/>**
+
 **Где тихо, темно и далеко от людей?** Карта, которая оценивает любую точку региона от 0 до 100 — для путешественников, кемпинга и тех, кто ищет, куда уехать поработать. Всё на открытых данных, расчёт в браузере: без сервера и ключей.
 
 English: [README.md](README.md).

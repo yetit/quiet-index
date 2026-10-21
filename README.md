@@ -1,5 +1,9 @@
 # Quiet Index
 
+[![Build and deploy](https://github.com/yetit/quiet-index/actions/workflows/deploy.yml/badge.svg)](https://github.com/yetit/quiet-index/actions/workflows/deploy.yml) [![Smoke](https://github.com/yetit/quiet-index/actions/workflows/live.yml/badge.svg)](https://github.com/yetit/quiet-index/actions/workflows/live.yml)
+
+**Live demo: <https://yetit.github.io/quiet-index/>**
+
 **Where is it quiet, dark and far from people?** A map that scores any point of a region from 0 to 100 — for travellers, campers and anyone looking for a place to work away from everything. All from open data, computed in the browser: no server, no API keys.
 
 Русская версия: [README.ru.md](README.ru.md).
