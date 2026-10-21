@@ -37,6 +37,10 @@ export function index(s: Scores, w: Weights): number {
   return wsum ? Math.round(sum / wsum) : Math.round(LAYERS.reduce((a, k) => a + s[k], 0) / LAYERS.length);
 }
 
+// Класс Бортля по радиометрии VIIRS — грубое соответствие: шкала описывает яркость неба, а спутник видит свет земли.
+export const BORTLE: [number, number][] = [[0.25, 2], [0.5, 3], [1, 4], [2.5, 5], [8, 6], [25, 7], [60, 8]];
+export const bortle = (r: number) => BORTLE.find(([max]) => r <= max)?.[1] ?? 9;
+
 export const parseWeights = (s: string | null): Weights | null => {
   const v = s?.split('-').map(Number);
   if (!v || v.length !== LAYERS.length || v.some((x) => !Number.isInteger(x) || x < 0 || x > 100)) return null;

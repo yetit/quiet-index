@@ -48,7 +48,11 @@ const base = import.meta.env.BASE_URL;
 
       <p class="loading" aria-live="polite" data-i="loading"></p>
 
-      <section class="empty" hidden><p class="lead" data-i="lead"></p></section>
+      <section class="empty" hidden>
+        <p class="lead" data-i="lead"></p>
+        <h3 data-i="examples"></h3>
+        <div class="examples"></div>
+      </section>
       <section class="outside" hidden><p class="lead" data-i="outside"></p></section>
 
       <section class="result" hidden>
@@ -58,7 +62,18 @@ const base = import.meta.env.BASE_URL;
         </div>
         <p class="place"></p>
         <ul class="breakdown"></ul>
-        <button class="copy-link" type="button" data-i="copyLink"></button>
+        <div class="actions"><button class="copy-link" type="button" data-i="copyLink"></button><button class="compare-btn" type="button" data-i="compareBtn"></button></div>
+        <div class="compare" hidden>
+          <h3 data-i="compareTitle"></h3>
+          <p class="compare-hint note" data-i="compareHint" hidden></p>
+          <table class="compare-table"><tbody></tbody></table>
+          <button class="compare-clear" type="button" data-i="compareClear"></button>
+        </div>
+        <div class="spots">
+          <h3 data-i="spots"></h3>
+          <div class="spots-radius" role="radiogroup"></div>
+          <ol class="spots-list"></ol>
+        </div>
       </section>
 
       <section class="weights">

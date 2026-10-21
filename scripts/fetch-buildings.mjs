@@ -6,7 +6,7 @@ import { overpass } from './overpass.mjs';
 
 const region = getRegion(process.argv[2]);
 const { west, south, east, north } = region.bbox;
-const STEP = 0.25;
+const STEP = region.buildingTile ?? 0.25;
 const dir = `data/${region.id}/raw`;
 mkdirSync(dir, { recursive: true });
 

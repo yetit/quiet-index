@@ -42,7 +42,8 @@ export function initMap(g: GridMeta, bounds: [number, number, number, number]) {
     const labels = map.getStyle().layers.find((l) => l.type === 'symbol')?.id;
     map.addLayer({ id: 'index', type: 'raster', source: 'index', paint: { 'raster-opacity': 0.68, 'raster-fade-duration': 0 } }, labels);
     map.addSource('pin', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-    map.addLayer({ id: 'pin', type: 'circle', source: 'pin', paint: { 'circle-radius': 7, 'circle-color': '#1f2421', 'circle-stroke-color': '#fff', 'circle-stroke-width': 2.5 } });
+    // B (текущая точка) — тёмная, A (закреплённая для сравнения) — зелёная.
+    map.addLayer({ id: 'pin', type: 'circle', source: 'pin', paint: { 'circle-radius': 7, 'circle-color': ['match', ['get', 'kind'], 'a', '#2f8a72', '#1f2421'], 'circle-stroke-color': '#fff', 'circle-stroke-width': 2.5 } });
     ready = true;
     if (pending) paint(pending);
     map.once('idle', () => performance.mark('qi:painted'));
@@ -65,6 +66,6 @@ export function paint(values: Uint8Array) {
   (map.getSource('index') as ImageSource).updateImage({ url: canvas.toDataURL() });
 }
 
-export function setPin(p: [number, number] | null) {
-  (map.getSource('pin') as GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: p ? [{ type: 'Feature', geometry: { type: 'Point', coordinates: p }, properties: {} }] : [] });
+export function setPin(pts: { p: [number, number]; kind: string }[]) {
+  (map.getSource('pin') as GeoJSONSource | undefined)?.setData({ type: 'FeatureCollection', features: pts.map(({ p, kind }) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: p }, properties: { kind } })) });
 }

@@ -1,7 +1,7 @@
 // Синтетические сцены для ядра: оценки слоёв, индекс, кодирование планов.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { DEFAULT_WEIGHTS, LAYERS, index, indexAll, parseWeights, scores, weightsParam } from '../src/core/index.ts';
+import { DEFAULT_WEIGHTS, LAYERS, bortle, index, indexAll, parseWeights, scores, weightsParam } from '../src/core/index.ts';
 import { PLANES, decode, deltaDecode, deltaEncode, distCap, encode, rawAt, splitPlanes, type Raw } from '../src/core/layers.ts';
 import { cellOf, centerOf, gridFor, metersPerCell } from '../src/core/grid.ts';
 
@@ -38,6 +38,13 @@ test('темнота: лог-шкала между 0,25 и 50 нВт', () => {
   assert.equal(scores({ ...wild, light: 0.25 }).dark, 100);
   assert.equal(scores({ ...wild, light: Math.sqrt(0.25 * 50) }).dark, 50);
   assert.equal(scores({ ...wild, light: 50 }).dark, 0);
+});
+
+test('класс Бортля: глушь 2, город 8, мегаполис 9', () => {
+  assert.equal(bortle(0.1), 2);
+  assert.equal(bortle(1), 4);
+  assert.equal(bortle(38.2), 8);
+  assert.equal(bortle(100), 9);
 });
 
 test('индекс: взвешенное среднее, нулевые веса — простое среднее', () => {

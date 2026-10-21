@@ -76,6 +76,24 @@ body.offline .offline-note { display: block; }
 .l-detail { color: var(--muted); font-size: 12px; }
 .copy-link, .reset { align-self: flex-start; padding: 6px 12px; border-radius: 999px; border: 1px solid #d6d3ca; background: #fff; font-size: 13px; }
 
+/* --- Примеры, сравнение, тише рядом --- */
+.examples { display: flex; flex-direction: column; gap: 6px; }
+.example { text-align: left; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: #fff; transition: border-color 0.2s; }
+.example:hover { border-color: var(--accent); }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.compare, .spots { display: flex; flex-direction: column; gap: 6px; }
+.compare-table { border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+.compare-table td, .compare-table th { padding: 3px 8px; text-align: right; border-bottom: 1px solid var(--line); }
+.compare-table td:first-child, .compare-table th:first-child { text-align: left; }
+.compare-table th { font-weight: 600; }
+.compare-table .best { font-weight: 650; color: var(--accent); }
+.spots-radius { display: flex; gap: 6px; }
+.spots-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.spots-list button { width: 100%; display: flex; align-items: baseline; gap: 10px; text-align: left; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: #fff; }
+.spots-list button:hover { border-color: var(--accent); }
+.spots-list b { font-size: 16px; font-weight: 650; min-width: 28px; }
+.spots-list small { margin-left: auto; color: var(--muted); }
+
 /* --- Веса --- */
 .weights { display: flex; flex-direction: column; gap: 6px; }
 .w-row { display: grid; grid-template-columns: 76px 1fr 30px; align-items: center; gap: 8px; font-size: 13px; }

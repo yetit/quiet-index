@@ -56,3 +56,27 @@ test.describe('геолокация и офлайн', () => {
     await context.setOffline(false);
   });
 });
+
+test('примеры, «тише рядом» и сравнение двух точек', async ({ page }) => {
+  await page.goto(`?lang=en&v=${Date.now()}`);
+  await painted(page);
+  await expect(page.locator('.example')).toHaveCount(3);
+  await page.locator('.example').first().click(); // Дурмитор
+  await expect(page.locator('.score')).toHaveText(/^\d+$/);
+  await expect(page.locator('.layer-row[data-layer="dark"] .l-detail')).toContainText('Bortle class');
+  const spots = page.locator('.spots-list button');
+  await expect(spots.first()).toBeVisible();
+  const best = Number(await spots.first().locator('b').textContent());
+  const here = Number(await page.locator('.score').textContent());
+  expect(best).toBeGreaterThanOrEqual(here);
+  // Сравнение: закрепить A, выбрать B из списка «тише рядом»
+  await page.locator('.compare-btn').click();
+  await expect(page.locator('.compare-hint')).toBeVisible();
+  expect(page.url()).toContain('a=43.1500,19.0800');
+  await spots.first().click();
+  await expect(page.locator('.compare-table tbody tr')).toHaveCount(6);
+  await expect(page.locator('.compare-table tbody tr').first().locator('td').nth(2)).toHaveText(String(best));
+  await page.locator('.compare-clear').click();
+  await expect(page.locator('.compare')).toBeHidden();
+  expect(page.url()).not.toContain('a=');
+});
