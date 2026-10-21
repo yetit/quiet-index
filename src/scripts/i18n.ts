@@ -14,6 +14,9 @@ const ru = {
   loadError: 'Не удалось загрузить данные. Обновите страницу.',
   searchPh: 'Найти место',
   nothing: 'Ничего не найдено',
+  locate: 'Где я',
+  geoError: 'Геолокация недоступна или запрещена',
+  offline: 'Офлайн: карта и данные из кэша, поиск недоступен',
   views: { index: 'Индекс', noise: 'Тишина', dark: 'Темнота', remote: 'Безлюдье', nature: 'Природа', signal: 'Связь' },
   hints: {
     noise: 'Расстояние до дорог и улиц по классам OSM, железной дороги и аэропорта',
@@ -55,6 +58,9 @@ const en: typeof ru = {
   loadError: 'Could not load the data. Reload the page.',
   searchPh: 'Find a place',
   nothing: 'Nothing found',
+  locate: 'Where am I',
+  geoError: 'Geolocation unavailable or denied',
+  offline: 'Offline: map and data from cache, search unavailable',
   views: { index: 'Index', noise: 'Quiet', dark: 'Dark', remote: 'Remote', nature: 'Nature', signal: 'Signal' },
   hints: {
     noise: 'Distance to roads and streets by OSM class, railways and airports',

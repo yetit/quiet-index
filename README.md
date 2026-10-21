@@ -15,7 +15,8 @@ Pilot region: Montenegro, the whole country on a ~250 m grid. The architecture i
 - **The map** is coloured by the index as soon as the page opens (the precomputed grid is one ~1 MB file). Switch to a single layer — quiet, dark, remote, nature, signal — with the chips.
 - **Click a point** to get the score, the five layer scores, and the measurements behind them: distance to the nearest road and its class, railway, airport, nearest building, nearest cell tower, night radiance, population density, shares of forest / water / open land.
 - **Weights** are sliders. The index is the weighted mean of the five layers, nothing hidden. "Signal" has weight 0 by default — raise it if you need internet.
-- **Place search** (Photon), **RU / EN**, a bottom sheet on phones, and the whole state in the URL (`?p=lat,lon&w=…&l=…&lang=…`) for sharing.
+- **Place search** (Photon), **"Where am I"** (geolocation), **RU / EN**, a bottom sheet on phones, and the whole state in the URL (`?p=lat,lon&w=…&l=…&lang=…`) for sharing.
+- **Works offline.** It is a PWA: after the first visit a service worker keeps the page, the grid and the basemap tiles you have looked at, so the map and the scores open in a tent without signal (install it from the browser menu). Place search needs the network.
 
 ## How the index is computed
 
@@ -64,6 +65,7 @@ The derived grid in `public/data/<region>/` mixes these sources; treat it as ODb
 - **Population** is a 2020 model (WorldPop), tourists and seasonal residents are not in it: the coast in August is busier than the map says.
 - **Nature** is a land-cover share, not scenery. Bare high plateaus count as half-wild; pastures count as wild.
 - Sea, lakes and anything outside the country boundary are masked out — no score there.
+- **Offline** covers only basemap tiles already seen online (up to ~2 000 tiles); elsewhere the index is drawn over an empty background.
 
 ## Add a region
 
@@ -80,7 +82,7 @@ npm install
 npm run dev        # http://localhost:4327
 npm test           # core: scoring, encoding, grid geometry, distance transform
 npm run check      # astro check (TypeScript)
-npm run test:e2e   # Playwright smoke: map painted, click gives a breakdown, weights change the score
+npm run test:e2e   # Playwright smoke: map painted, click gives a breakdown, weights change the score, geolocation, offline reload (needs a build: astro preview)
 npm run build
 ```
 

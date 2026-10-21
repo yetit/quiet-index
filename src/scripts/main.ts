@@ -1,6 +1,7 @@
 import '@fontsource-variable/inter';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import '../styles/global.css';
+import { GeolocateControl } from 'maplibre-gl';
 import { cellOf } from '../core/grid.ts';
 import { index, indexAll, scores, type Scores } from '../core/index.ts';
 import { rawAt } from '../core/layers.ts';
@@ -8,6 +9,7 @@ import { $, BASE, region, state, syncUrl } from './app.ts';
 import { loadData, type Data } from './data.ts';
 import { lang, t, translate } from './i18n.ts';
 import { initMap, map, paint, setPin } from './map/map.ts';
+import { initPwa } from './pwa.ts';
 import { initPanel, showCell, showEmpty, showOutside, updateIndex } from './ui/panel.ts';
 import { initSearch } from './ui/search.ts';
 import { initSheet, setSheet } from './ui/sheet.ts';
@@ -59,6 +61,13 @@ const b = data.meta.bbox;
 initMap(data.meta, [b.west, b.south, b.east, b.north]);
 repaint();
 map.on('click', (e) => select([e.lngLat.lng, e.lngLat.lat]));
+// «Где я»: стандартный контрол MapLibre (точка пользователя на карте) и кнопка в панели, которая его дёргает.
+const geo = new GeolocateControl({ positionOptions: { enableHighAccuracy: true }, fitBoundsOptions: { maxZoom: 12 } });
+map.addControl(geo, 'bottom-right');
+geo.on('geolocate', (e) => { $('.geo-error').hidden = true; select([e.coords.longitude, e.coords.latitude], true); });
+geo.on('error', () => ($('.geo-error').hidden = false));
+$('.locate').addEventListener('click', () => geo.trigger());
+map.once('idle', initPwa);
 map.on('load', () => { if (state.point) select(state.point); else showEmpty(); });
 initSearch((p) => select(p, true));
 $('.copy-link').addEventListener('click', async () => {

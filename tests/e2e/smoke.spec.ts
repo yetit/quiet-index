@@ -36,3 +36,23 @@ test('точка из ссылки: оценка, пять слоёв, веса 
   await expect(page.locator('.result:visible, .outside:visible')).toHaveCount(1);
   expect(page.url()).not.toContain('p=43.1500,19.0800');
 });
+
+test.describe('геолокация и офлайн', () => {
+  test.use({ geolocation: { latitude: 42.9, longitude: 19.3 }, permissions: ['geolocation'] });
+  test('«где я» выбирает точку; после первого визита карта открывается без сети', async ({ page, context }) => {
+    await page.goto(`?lang=en&v=${Date.now()}`);
+    await painted(page);
+    await page.locator('.locate').click();
+    await expect(page.locator('.score')).toHaveText(/^\d+$/);
+    expect(page.url()).toContain('p=42.9000,19.3000');
+    // Service worker регистрируется только в сборке; на dev-сервере офлайн не проверяем.
+    const sw = await page.evaluate(() => navigator.serviceWorker?.getRegistration().then((r) => !!r));
+    test.skip(!sw, 'dev-сервер без service worker');
+    await page.waitForFunction(() => performance.getEntriesByName('qi:cached').length > 0, null, { timeout: 60_000 });
+    await context.setOffline(true);
+    await page.reload();
+    await expect(page.locator('.score')).toHaveText(/^\d+$/, { timeout: 30_000 });
+    await expect(page.locator('.offline-note')).toBeVisible();
+    await context.setOffline(false);
+  });
+});

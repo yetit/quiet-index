@@ -42,8 +42,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .about summary { cursor: pointer; font-weight: 500; }
 .about p { margin-top: 6px; }
 
-/* --- Поиск --- */
-.search-wrap { position: relative; }
+/* --- Поиск и «где я» --- */
+.search-row { display: flex; gap: 6px; }
+.search-wrap { position: relative; flex: 1; }
+.locate { flex: none; padding: 6px 12px; border-radius: 10px; border: 1px solid #cfccc3; background: #fff; font-size: 13px; white-space: nowrap; }
+.offline-note { display: none; padding: 6px 10px; border-radius: 8px; background: #fff4e0; color: #7a4f00; }
+body.offline .offline-note { display: block; }
 .search { width: 100%; font: inherit; padding: 8px 12px; border-radius: 10px; border: 1px solid #cfccc3; background: #fff; }
 .search-results { position: absolute; z-index: 3; top: 100%; left: 0; right: 0; margin-top: 4px; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
 .search-results button { display: block; width: 100%; text-align: left; padding: 8px 12px; border: 0; background: none; }
@@ -91,7 +95,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   /* В свёрнутом листе видны ручка, заголовок и оценка; остальное — ниже. */
   .sheet-handle { order: -1; }
   .result, .empty, .outside, .loading { order: 1; }
-  .tagline, .search-wrap, .views { order: 5; }
+  .tagline, .search-row, .geo-error, .offline-note, .views { order: 5; }
   .weights { order: 6; }
   .about { order: 7; margin-top: 0; }
   .score { font-size: 36px; }
