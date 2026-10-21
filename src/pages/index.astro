@@ -1,0 +1,72 @@
+---
+import { regions } from '../../regions.config.mjs';
+const names = regions.map((r) => r.name.en).join(', ');
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Quiet Index — Индекс тихого места</title>
+    <meta name="description" content={`How quiet, dark and remote is any point in ${names}? Roads, night lights, population, land cover — open data, computed in your browser. · Насколько тихо, темно и безлюдно в любой точке: дороги, ночной свет, население, природа — открытые данные, расчёт в браузере.`} />
+    <meta name="theme-color" content="#fbfaf7" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%232f8a72'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23fbfaf7'/%3E%3C/svg%3E" />
+  </head>
+  <body data-sheet="peek">
+    <div id="map" class="map" role="region" data-i-aria="mapAria"></div>
+
+    <div class="legend-box">
+      <b class="legend-title"></b>
+      <i class="legend-bar"></i>
+      <span class="legend-ticks"><small class="legend-min"></small><small class="legend-max"></small></span>
+    </div>
+
+    <aside class="panel">
+      <button class="sheet-handle" type="button" data-i-aria="expand" aria-expanded="false"></button>
+      <header class="brand">
+        <h1>Quiet Index</h1>
+        <span class="region-name" data-i-title="region"></span>
+        <a class="lang" href="?lang=en" hreflang="en">EN</a>
+      </header>
+      <p class="tagline" data-i="tagline"></p>
+
+      <div class="search-wrap">
+        <input class="search" type="search" data-i-ph="searchPh" data-i-aria="searchPh" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-results" />
+        <div class="search-results" id="search-results" role="listbox" hidden></div>
+      </div>
+
+      <div class="views" role="radiogroup"></div>
+
+      <p class="loading" aria-live="polite" data-i="loading"></p>
+
+      <section class="empty" hidden><p class="lead" data-i="lead"></p></section>
+      <section class="outside" hidden><p class="lead" data-i="outside"></p></section>
+
+      <section class="result" hidden>
+        <div class="score-box">
+          <b class="score"></b><span class="score-of" data-i="of100"></span>
+          <span class="verdict"></span>
+        </div>
+        <p class="place"></p>
+        <ul class="breakdown"></ul>
+        <button class="copy-link" type="button" data-i="copyLink"></button>
+      </section>
+
+      <section class="weights">
+        <h3 data-i="weights"></h3>
+        <div class="weights-list"></div>
+        <p class="note" data-i="weightsNote"></p>
+        <button class="reset" type="button" data-i="reset"></button>
+      </section>
+
+      <details class="about">
+        <summary data-i="aboutTitle"></summary>
+        <p data-i="about"></p>
+        <p class="built"></p>
+      </details>
+    </aside>
+
+    <script src="../scripts/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,69 @@
+{
+ "region": "montenegro",
+ "bbox": {
+  "west": 18.4,
+  "south": 41.7982317835573,
+  "east": 20.4,
+  "north": 43.6
+ },
+ "cols": 655,
+ "rows": 803,
+ "cell": 250,
+ "dLon": 0.0030534351145038168,
+ "planes": [
+  "mask",
+  "motorway",
+  "trunk",
+  "primary",
+  "secondary",
+  "tertiary",
+  "rail",
+  "air",
+  "building",
+  "tower",
+  "light",
+  "pop",
+  "forest",
+  "water",
+  "open"
+ ],
+ "built": "2026-10-21",
+ "sources": {
+  "osm": "2026-10-21",
+  "buildings": {
+   "fetched": "2026-10-21",
+   "count": 437113
+  },
+  "light": {
+   "source": "GIBS VIIRS_SNPP_GapFilled_BRDF_Corrected_DayNightBand_Radiance",
+   "year": "2025",
+   "dates": 24,
+   "z": 8,
+   "px0": 36096,
+   "py0": 23808,
+   "w": 512,
+   "h": 768
+  },
+  "landcover": "ESA WorldCover 2021 v200",
+  "pop": "WorldPop 2020 unconstrained 100 m"
+ },
+ "cells": 218808,
+ "bytes": 1199871,
+ "meanEncoded": {
+  "mask": 1,
+  "motorway": 242.1,
+  "trunk": 250.9,
+  "primary": 115.3,
+  "secondary": 102.1,
+  "tertiary": 109.4,
+  "rail": 207.5,
+  "air": 220.3,
+  "building": 17.2,
+  "tower": 112.4,
+  "light": 73.5,
+  "pop": 67.5,
+  "forest": 30.4,
+  "water": 0.4,
+  "open": 18.2
+ }
+}

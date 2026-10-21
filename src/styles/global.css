@@ -1,0 +1,98 @@
+:root {
+  --bg: #fbfaf7;
+  --ink: #1f2421;
+  --muted: #6b716c;
+  --line: #e4e2db;
+  --accent: #2f8a72;
+  --panel: min(400px, 100vw);
+  --sheet-peek: 168px;
+  --font: 'Inter Variable', system-ui, -apple-system, sans-serif;
+  --shadow: 0 6px 24px rgba(30, 40, 30, 0.12);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { font: 400 14px/1.45 var(--font); color: var(--ink); background: var(--bg); font-feature-settings: 'tnum', 'cv11'; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+[hidden] { display: none !important; }
+
+/* #map, а не .map: maplibre-gl.css грузится позже и его .maplibregl-map { position: relative } перебил бы класс */
+#map { position: fixed; inset: 0; right: var(--panel); }
+
+/* --- Легенда --- */
+.legend-box { position: fixed; left: 12px; bottom: 12px; z-index: 2; width: 220px; padding: 10px 12px; border-radius: 10px; background: rgba(251, 250, 247, 0.92); box-shadow: var(--shadow); font-size: 12px; }
+.legend-title { display: block; margin-bottom: 6px; font-weight: 600; }
+.legend-bar { display: block; height: 10px; border-radius: 5px; }
+.legend-ticks { display: flex; justify-content: space-between; margin-top: 4px; color: var(--muted); font-size: 11px; }
+
+/* --- Панель --- */
+.panel { position: fixed; top: 0; right: 0; bottom: 0; width: var(--panel); z-index: 4; overflow-y: auto; padding: 20px 22px 18px; background: var(--bg); border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 12px; }
+.sheet-handle { display: none; }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand h1 { margin: 0 auto 0 0; font-size: 24px; font-weight: 650; letter-spacing: -0.02em; }
+.region-name { color: var(--muted); font-size: 13px; }
+.lang { font: inherit; font-size: 13px; font-weight: 600; padding: 4px 8px; border-radius: 8px; border: 1px solid #cfccc3; background: #fff; color: var(--ink); text-decoration: none; }
+.tagline { margin: -6px 0 0; color: var(--muted); }
+.panel h3 { margin: 10px 0 6px; font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+.panel p { margin: 0; }
+.note, .about, .place, .built, .loading { color: var(--muted); font-size: 12.5px; }
+.lead { font-size: 15px; line-height: 1.5; }
+.about { margin-top: auto; padding-top: 14px; border-top: 1px solid var(--line); }
+.about summary { cursor: pointer; font-weight: 500; }
+.about p { margin-top: 6px; }
+
+/* --- Поиск --- */
+.search-wrap { position: relative; }
+.search { width: 100%; font: inherit; padding: 8px 12px; border-radius: 10px; border: 1px solid #cfccc3; background: #fff; }
+.search-results { position: absolute; z-index: 3; top: 100%; left: 0; right: 0; margin-top: 4px; background: #fff; border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
+.search-results button { display: block; width: 100%; text-align: left; padding: 8px 12px; border: 0; background: none; }
+.search-results button:hover { background: #f1efe8; }
+.search-results small, .search-results span { display: block; color: var(--muted); font-size: 11.5px; }
+.search-results span { padding: 8px 12px; }
+
+/* --- Слои --- */
+.views { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 5px 11px; border-radius: 999px; border: 1px solid #d6d3ca; background: #fff; font-size: 13px; }
+.chip[aria-checked='true'] { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+/* --- Результат --- */
+.result { display: flex; flex-direction: column; gap: 8px; }
+.score-box { display: flex; align-items: baseline; gap: 6px; }
+.score { font-size: 44px; font-weight: 650; letter-spacing: -0.03em; line-height: 1; }
+.score-of { color: var(--muted); }
+.verdict { margin-left: auto; padding: 4px 10px; border-radius: 999px; background: #e6f1ec; color: #1d5c47; font-weight: 500; }
+.breakdown { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.l-head { display: flex; align-items: baseline; gap: 8px; }
+.l-head b { font-weight: 600; }
+.l-val { margin-left: auto; font-weight: 600; font-variant-numeric: tabular-nums; }
+.l-w { color: var(--muted); width: 44px; text-align: right; }
+.l-bar { display: block; height: 6px; margin: 4px 0; border-radius: 3px; background: #ece9e1; overflow: hidden; }
+.l-bar i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.l-detail { color: var(--muted); font-size: 12px; }
+.copy-link, .reset { align-self: flex-start; padding: 6px 12px; border-radius: 999px; border: 1px solid #d6d3ca; background: #fff; font-size: 13px; }
+
+/* --- Веса --- */
+.weights { display: flex; flex-direction: column; gap: 6px; }
+.w-row { display: grid; grid-template-columns: 76px 1fr 30px; align-items: center; gap: 8px; font-size: 13px; }
+.w-row input { width: 100%; accent-color: var(--accent); margin: 0; }
+.w-row output { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+/* --- Телефон: панель — лист снизу --- */
+@media (max-width: 720px) {
+  :root { --panel: 100vw; }
+  #map { right: 0; }
+  .legend-box { bottom: calc(var(--sheet-peek) + 10px); width: 170px; }
+  .panel { top: auto; left: 0; height: var(--sheet-peek); border-left: 0; border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; padding-top: 6px; transition: height 0.25s; overflow: hidden; }
+  body[data-sheet='full'] .panel { height: min(78vh, 640px); overflow-y: auto; }
+  body[data-sheet='full'] .legend-box { display: none; }
+  .sheet-handle { display: block; align-self: center; width: 44px; height: 5px; border-radius: 3px; border: 0; background: #cfccc3; padding: 0; margin-bottom: 2px; }
+  .brand h1 { font-size: 20px; }
+  /* В свёрнутом листе видны ручка, заголовок и оценка; остальное — ниже. */
+  .sheet-handle { order: -1; }
+  .result, .empty, .outside, .loading { order: 1; }
+  .tagline, .search-wrap, .views { order: 5; }
+  .weights { order: 6; }
+  .about { order: 7; margin-top: 0; }
+  .score { font-size: 36px; }
+}
