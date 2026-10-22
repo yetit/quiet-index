@@ -24,6 +24,8 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Fetch
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144 # таблица узлов Сербии с соседями
         run: |
           ids=$(node -e "import('./regions.config.mjs').then((m) => console.log(m.regions.map((r) => r.id).join(' ')))")
           for id in $ids; do
