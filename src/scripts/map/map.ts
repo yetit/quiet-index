@@ -1,6 +1,7 @@
-// Карта: светлая подложка OpenFreeMap Positron, поверх — растр индекса image-источником по bbox сетки
-// (сетка в Web Mercator, поэтому четыре угла ложатся точно), маркер выбранной точки.
-import { ImageSource, Map, NavigationControl, setWorkerUrl, type GeoJSONSource } from 'maplibre-gl';
+// Карта: светлая подложка OpenFreeMap Positron, поверх — растр индекса canvas-источником по bbox сетки
+// (сетка в Web Mercator, поэтому четыре угла ложатся точно; canvas вместо PNG через dataURL — без кодирования
+// картинки на главном потоке), маркер выбранной точки.
+import { GeolocateControl, Map, NavigationControl, setWorkerUrl, type CanvasSource, type GeoJSONSource } from 'maplibre-gl';
 import type { GridMeta } from '../../core/grid.ts';
 import { BASE } from '../app.ts';
 
@@ -38,7 +39,7 @@ export function initMap(g: GridMeta, bounds: [number, number, number, number]) {
   img = ctx.createImageData(g.cols, g.rows);
   const { west, south, east, north } = g.bbox;
   map.on('load', () => {
-    map.addSource('index', { type: 'image', url: canvas.toDataURL(), coordinates: [[west, north], [east, north], [east, south], [west, south]] });
+    map.addSource('index', { type: 'canvas', canvas, animate: false, coordinates: [[west, north], [east, north], [east, south], [west, south]] });
     const labels = map.getStyle().layers.find((l) => l.type === 'symbol')?.id;
     map.addLayer({ id: 'index', type: 'raster', source: 'index', paint: { 'raster-opacity': 0.68, 'raster-fade-duration': 0 } }, labels);
     map.addSource('pin', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
@@ -63,7 +64,19 @@ export function paint(values: Uint8Array) {
     d[j] = LUT[v * 3]; d[j + 1] = LUT[v * 3 + 1]; d[j + 2] = LUT[v * 3 + 2]; d[j + 3] = 255;
   }
   ctx.putImageData(img, 0, 0);
-  (map.getSource('index') as ImageSource).updateImage({ url: canvas.toDataURL() });
+  // animate: false читает canvas один раз; после перерисовки просим прочитать заново на ближайшем кадре.
+  const src = map.getSource('index') as CanvasSource;
+  src.play();
+  map.once('render', () => src.pause());
+}
+
+// «Где я»: стандартный контрол MapLibre (точка пользователя на карте); возвращает функцию-триггер для кнопки в панели.
+export function addGeolocate(onPos: (p: [number, number]) => void, onError: () => void) {
+  const geo = new GeolocateControl({ positionOptions: { enableHighAccuracy: true }, fitBoundsOptions: { maxZoom: 12 } });
+  map.addControl(geo, 'bottom-right');
+  geo.on('geolocate', (e) => onPos([e.coords.longitude, e.coords.latitude]));
+  geo.on('error', onError);
+  return () => geo.trigger();
 }
 
 export function setPin(pts: { p: [number, number]; kind: string }[]) {

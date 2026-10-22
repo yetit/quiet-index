@@ -1,0 +1,105 @@
+---
+// Страница метода: формулы, источники, сверка с END. Два языка на одной странице, лишний прячется по ?lang=.
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+import { Content as EndDalmatia } from '../../docs/end-check-dalmatia.md';
+const base = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quiet Index — method · метод</title>
+    <meta name="description" content="How the Quiet Index is computed: five 0–100 scores from open data, their thresholds, data sources and licences, and a cross-check against EU noise maps. · Как считается Индекс тихого места." />
+    <meta name="theme-color" content="#fbfaf7" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%232f8a72'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23fbfaf7'/%3E%3C/svg%3E" />
+    <style>
+      .doc { max-width: 760px; margin: 0 auto; padding: 32px 20px 60px; }
+      .doc h1 { font-size: 28px; letter-spacing: -0.02em; margin: 0 0 4px; }
+      .doc h2 { font-size: 20px; margin: 28px 0 8px; }
+      .doc table { border-collapse: collapse; font-size: 13.5px; width: 100%; margin: 8px 0; }
+      .doc td, .doc th { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+      .doc th { font-weight: 600; }
+      .doc code { background: #f1efe8; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+      .doc .top { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+      .doc a { color: #1f6b57; }
+      .doc p { margin: 8px 0; }
+      [data-lang] { display: none; } /* нужный язык включает скрипт ниже — без сдвига вёрстки */
+      [data-lang].on { display: block; }
+    </style>
+  </head>
+  <body>
+    <main class="doc">
+      <p class="top"><a href={base}>← Quiet Index</a><a class="lang-link" href="?lang=en">EN</a></p>
+
+      <section data-lang="ru">
+        <h1>Как считается индекс</h1>
+        <p>Регион режется на клетки ~250 м (квадратные в Web Mercator). Каждая клетка получает пять оценок 0–100 из открытых данных, индекс — их взвешенное среднее с весами, которые видны в панели и настраиваются. Все пороги — эвристики, подобранные на глаз по пилотному региону и затем проверенные по картам шума ЕС (ниже). Расчёт сделан заранее (при сборке данных), браузер только раскрашивает карту и показывает разбивку.</p>
+        <h2>Пять оценок</h2>
+        <table>
+          <tr><th>Слой</th><th>100 — это</th><th>0 — это</th><th>Формула</th></tr>
+          <tr><td>Тишина</td><td>ни одного источника в пределах слышимости</td><td>на дороге</td><td><code>min</code> по источникам от <code>расстояние / радиус</code>: motorway 2,5 км, trunk 2 км, primary 1,2 км, secondary 700 м, tertiary 400 м, улица 150 м, ж/д 1 км, аэропорт 4 км. Если ближайшая точка источника не видна из клетки по рельефу (DEM 90 м, приёмник 1,5 м, источник 0,5 м), расстояние считается втрое большим — грубо −5 дБ.</td></tr>
+          <tr><td>Темнота</td><td>≤ 0,25 нВт/(см²·ср)</td><td>≥ 50 нВт/(см²·ср)</td><td>лог-шкала между порогами; для справки показывается приблизительный класс Бортля (шкала описывает небо, спутник видит землю)</td></tr>
+          <tr><td>Безлюдье</td><td>никого в 2×2 км, ни одного здания в 1 км</td><td>плотный город</td><td>среднее лог-оценки плотности (0 при ≥ 5 000 чел/км²) и <code>расстояние до здания / 1 км</code></td></tr>
+          <tr><td>Природа</td><td>лес и вода вокруг</td><td>пашня или застройка</td><td>лес % + вода % + ½ открытых естественных земель % в окне 2×2 км</td></tr>
+          <tr><td>Связь</td><td>вышка из OSM в 1 км</td><td>ни одной в 8 км</td><td>линейно; данные OSM о вышках неполные, вес по умолчанию 0</td></tr>
+        </table>
+        <h2>Сверка с картами шума ЕС</h2>
+        <p>Европейское агентство по окружающей среде публикует контуры Lden по директиве END — для крупных дорог (более 3 млн машин в год) и агломераций. Черногория в END не входит; для Далмации (Сплитско-Далматинская жупания) контуры есть, и в их центрах клеток наша «Тишина» выглядит так:</p>
+        <EndDalmatia />
+        <p>Внутри контуров END оценка почти всегда ниже 30 и падает с ростом Lden; строка «нет контура» смешивает по-настоящему тихие места и дороги, которые END не картирует, поэтому её 65 % «тихих» клеток ни о чём не говорят. Сверка подтверждает порядок порогов, но не калибрует их в децибелах.</p>
+        <h2>Данные и лицензии</h2>
+        <table>
+          <tr><td>Дороги, ж/д, аэропорты, здания, вышки, границы</td><td>OpenStreetMap через Overpass — ODbL 1.0</td></tr>
+          <tr><td>Ночной свет</td><td>NASA Black Marble VNP46A2 через GIBS, медиана 24 ночей года — данные NASA без ограничений</td></tr>
+          <tr><td>Население</td><td>WorldPop 2020, 100 м — CC BY 4.0</td></tr>
+          <tr><td>Покрытие земли</td><td>ESA WorldCover 2021 — CC BY 4.0</td></tr>
+          <tr><td>Рельеф</td><td>Copernicus DEM GLO-90 — лицензия Copernicus (свободное использование с указанием)</td></tr>
+          <tr><td>Карты шума для сверки</td><td>EEA, END Lden roads — © European Environment Agency</td></tr>
+          <tr><td>Подложка и поиск</td><td>OpenFreeMap / OpenMapTiles / OSM; Photon (komoot)</td></tr>
+        </table>
+        <p>Полный список ограничений — в <a href="https://github.com/yetit/quiet-index#readme">README</a>.</p>
+      </section>
+
+      <section data-lang="en">
+        <h1>How the index is computed</h1>
+        <p>The region is cut into ~250 m cells (square in Web Mercator). Each cell gets five 0–100 scores from open data; the index is their weighted mean with weights shown in the panel and adjustable. All thresholds are heuristics chosen by eye on the pilot region and then checked against EU noise maps (below). Everything is precomputed at data-build time; the browser only paints the map and shows the breakdown.</p>
+        <h2>Five scores</h2>
+        <table>
+          <tr><th>Layer</th><th>100 means</th><th>0 means</th><th>Formula</th></tr>
+          <tr><td>Quiet</td><td>no source within hearing range</td><td>on a road</td><td><code>min</code> over sources of <code>distance / range</code>: motorway 2.5 km, trunk 2 km, primary 1.2 km, secondary 700 m, tertiary 400 m, street 150 m, railway 1 km, airport 4 km. If the nearest point of the source is hidden by terrain (90 m DEM, receiver 1.5 m, source 0.5 m) the distance counts triple — roughly −5 dB.</td></tr>
+          <tr><td>Dark</td><td>≤ 0.25 nW/(cm²·sr)</td><td>≥ 50 nW/(cm²·sr)</td><td>log scale between the thresholds; an approximate Bortle class is shown for reference (the scale describes the sky, the satellite sees the ground)</td></tr>
+          <tr><td>Remote</td><td>nobody within 2×2 km, no building within 1 km</td><td>dense city</td><td>mean of a log-scale density score (0 at ≥ 5,000 people/km²) and <code>distance to building / 1 km</code></td></tr>
+          <tr><td>Nature</td><td>forest and water around</td><td>cropland or built-up</td><td>forest % + water % + ½ open natural land % in a 2×2 km window</td></tr>
+          <tr><td>Signal</td><td>an OSM cell tower within 1 km</td><td>none within 8 km</td><td>linear; OSM tower data is incomplete, default weight 0</td></tr>
+        </table>
+        <h2>Cross-check against EU noise maps</h2>
+        <p>The European Environment Agency publishes Lden contours under the END directive for major roads (over 3 million vehicles a year) and agglomerations. Montenegro is not covered; for Dalmatia (Split-Dalmatia County) contours exist, and at the cell centres inside them our Quiet score looks like this (table in Russian: Lden band, cells, p10, median, p90, share scored “quiet”, i.e. ≥ 60):</p>
+        <EndDalmatia />
+        <p>Inside END contours the score is almost always below 30 and falls as Lden grows; the “no contour” row mixes genuinely quiet places with roads END does not map, so its 65 % “quiet” cells say nothing. The check confirms the ordering of the thresholds; it does not calibrate them in decibels.</p>
+        <h2>Data and licences</h2>
+        <table>
+          <tr><td>Roads, railways, airports, buildings, towers, boundaries</td><td>OpenStreetMap via Overpass — ODbL 1.0</td></tr>
+          <tr><td>Night lights</td><td>NASA Black Marble VNP46A2 via GIBS, median of 24 nights — NASA data, no restrictions</td></tr>
+          <tr><td>Population</td><td>WorldPop 2020, 100 m — CC BY 4.0</td></tr>
+          <tr><td>Land cover</td><td>ESA WorldCover 2021 — CC BY 4.0</td></tr>
+          <tr><td>Terrain</td><td>Copernicus DEM GLO-90 — Copernicus licence (free use with attribution)</td></tr>
+          <tr><td>Noise maps for the check</td><td>EEA, END Lden roads — © European Environment Agency</td></tr>
+          <tr><td>Basemap and search</td><td>OpenFreeMap / OpenMapTiles / OSM; Photon (komoot)</td></tr>
+        </table>
+        <p>The full list of limitations is in the <a href="https://github.com/yetit/quiet-index#readme">README</a>.</p>
+      </section>
+    </main>
+    <script is:inline>
+      const q = new URL(location.href).searchParams.get('lang');
+      const lang = q === 'en' || q === 'ru' ? q : navigator.language.toLowerCase().startsWith('ru') ? 'ru' : 'en';
+      document.documentElement.lang = lang;
+      document.querySelectorAll('[data-lang]').forEach((s) => s.classList.toggle('on', s.dataset.lang === lang));
+      const l = document.querySelector('.lang-link');
+      l.textContent = lang === 'ru' ? 'EN' : 'RU';
+      l.href = `?lang=${lang === 'ru' ? 'en' : 'ru'}`;
+    </script>
+  </body>
+</html>

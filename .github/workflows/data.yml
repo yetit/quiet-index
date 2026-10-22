@@ -1,0 +1,53 @@
+# Раз в месяц заново выгружает данные всех регионов (OSM, ночной свет, население, покрытие, рельеф),
+# пересобирает растры и открывает PR, если продукт изменился. Overpass часто занят: scripts/overpass.mjs
+# перебирает зеркала, здесь — до трёх попыток на регион. PR от GITHUB_TOKEN не запускает другие workflow,
+# поэтому тесты гоняем здесь же. Нужно включить Settings → Actions → General →
+# «Allow GitHub Actions to create and approve pull requests».
+name: Update data
+on:
+  schedule:
+    - cron: '0 4 5 * *' # 5-го числа, 04:00 UTC
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: data
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Fetch
+        run: |
+          ids=$(node -e "import('./regions.config.mjs').then((m) => console.log(m.regions.map((r) => r.id).join(' ')))")
+          for id in $ids; do
+            for try in 1 2 3; do
+              npm run fetch -- "$id" --force && break
+              if [ "$try" = 3 ]; then echo "$id" >> "$RUNNER_TEMP/failed"; git checkout HEAD -- "public/data/$id"; else sleep $((try * 120)); fi
+            done
+          done
+      - run: npm test
+      - name: Pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain public/data)" ]; then echo "Данные не изменились"; exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -C data/update
+          git add public/data
+          git commit -m "Данные: выгрузка $(date -u +%F)"
+          git push -f origin data/update
+          title="Данные: выгрузка $(date -u +%F)"
+          body="Ежемесячная выгрузка: OSM (Overpass), NASA Black Marble (GIBS), WorldPop, ESA WorldCover, Copernicus DEM; пересборка растров."
+          if [ -s "$RUNNER_TEMP/failed" ]; then body="$body Не выгрузились за 3 попытки, оставлены как были: $(xargs < "$RUNNER_TEMP/failed")."; fi
+          gh pr create --base "$GITHUB_REF_NAME" --head data/update --title "$title" --body "$body" || gh pr edit data/update --title "$title" --body "$body"
+      - name: Failed regions
+        run: test ! -s "$RUNNER_TEMP/failed"

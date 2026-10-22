@@ -12,6 +12,15 @@ const base = import.meta.env.BASE_URL;
     <title>Quiet Index — Индекс тихого места</title>
     <meta name="description" content={`How quiet, dark and remote is any point in ${names}? Roads, night lights, population, land cover — open data, computed in your browser. · Насколько тихо, темно и безлюдно в любой точке: дороги, ночной свет, население, природа — открытые данные, расчёт в браузере.`} />
     <meta name="theme-color" content="#fbfaf7" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Quiet Index — where it is quiet, dark and empty" />
+    <meta property="og:description" content={`Score any point of ${names} from 0 to 100: roads, night lights, population, land cover. Open data, computed in your browser.`} />
+    <meta property="og:image" content={`${Astro.site ?? ''}${base}og.jpg`} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preload" href={`${base}data/montenegro/scores.gz`} as="fetch" crossorigin />
+    <link rel="preload" href={`${base}data/montenegro/meta.json`} as="fetch" crossorigin />
     <link rel="manifest" href={`${base}manifest.webmanifest`} />
     <link rel="apple-touch-icon" href={`${base}icons/icon-192.png`} />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%232f8a72'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23fbfaf7'/%3E%3C/svg%3E" />
@@ -29,7 +38,7 @@ const base = import.meta.env.BASE_URL;
       <button class="sheet-handle" type="button" data-i-aria="expand" aria-expanded="false"></button>
       <header class="brand">
         <h1>Quiet Index</h1>
-        <span class="region-name" data-i-title="region"></span>
+        <select class="region" data-i-aria="region"></select>
         <a class="lang" href="?lang=en" hreflang="en">EN</a>
       </header>
       <p class="tagline" data-i="tagline"></p>
@@ -50,7 +59,7 @@ const base = import.meta.env.BASE_URL;
 
       <section class="empty" hidden>
         <p class="lead" data-i="lead"></p>
-        <h3 data-i="examples"></h3>
+        <h2 class="sect" data-i="examples"></h2>
         <div class="examples"></div>
       </section>
       <section class="outside" hidden><p class="lead" data-i="outside"></p></section>
@@ -64,20 +73,20 @@ const base = import.meta.env.BASE_URL;
         <ul class="breakdown"></ul>
         <div class="actions"><button class="copy-link" type="button" data-i="copyLink"></button><button class="compare-btn" type="button" data-i="compareBtn"></button></div>
         <div class="compare" hidden>
-          <h3 data-i="compareTitle"></h3>
+          <h2 class="sect" data-i="compareTitle"></h2>
           <p class="compare-hint note" data-i="compareHint" hidden></p>
           <table class="compare-table"><tbody></tbody></table>
           <button class="compare-clear" type="button" data-i="compareClear"></button>
         </div>
         <div class="spots">
-          <h3 data-i="spots"></h3>
+          <h2 class="sect" data-i="spots"></h2>
           <div class="spots-radius" role="radiogroup"></div>
           <ol class="spots-list"></ol>
         </div>
       </section>
 
       <section class="weights">
-        <h3 data-i="weights"></h3>
+        <h2 class="sect" data-i="weights"></h2>
         <div class="weights-list"></div>
         <p class="note" data-i="weightsNote"></p>
         <button class="reset" type="button" data-i="reset"></button>

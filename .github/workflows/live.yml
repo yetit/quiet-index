@@ -1,6 +1,7 @@
-# Playwright smoke против опубликованного демо после каждого успешного деплоя:
-# карта окрашена индексом, клик даёт разбивку, веса меняют оценку.
-name: Smoke
+# Проверки опубликованного демо после каждого успешного деплоя: Playwright smoke (карта окрашена, клик даёт
+# разбивку, веса, примеры, сравнение, геолокация, офлайн) и Lighthouse с порогами из lighthouserc.json
+# (мобильный профиль, 3 прогона, медиана; пороги — по локальным замерам с запасом).
+name: Smoke & Lighthouse
 on:
   workflow_run:
     workflows: [Build and deploy]
@@ -9,6 +10,10 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+env:
+  DEMO: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+  # Свой параметр в URL — мимо кэша HTML на Pages.
+  BUST: ${{ github.event.workflow_run.head_sha || github.sha }}
 jobs:
   smoke:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
@@ -23,9 +28,22 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test
         env:
-          SMOKE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          SMOKE_URL: ${{ env.DEMO }}
       - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
           path: playwright-report
+  lighthouse:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: treosh/lighthouse-ci-action@v12
+        with:
+          urls: |
+            ${{ env.DEMO }}?lang=en&v=${{ env.BUST }}
+            ${{ env.DEMO }}method/?lang=en&v=${{ env.BUST }}
+          configPath: ./lighthouserc.json
+          uploadArtifacts: true
+          temporaryPublicStorage: true
