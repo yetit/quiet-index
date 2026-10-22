@@ -1,7 +1,7 @@
 // Правая панель: переключатель слоёв, результат по клетке (оценка, разбивка, подробности), ползунки весов.
 import { DEFAULT_WEIGHTS, LAYERS, NOISE_RANGE, bortle, type Layer, type Scores } from '../../core/index.ts';
 import { dirIndex, type Spot } from '../../core/spots.ts';
-import { distCap, type Raw } from '../../core/layers.ts';
+import { distCap, screenBit, type Raw } from '../../core/layers.ts';
 import { $, region, state, type View } from '../app.ts';
 import { lang, t } from '../i18n.ts';
 import { cssGradient } from '../map/map.ts';
@@ -61,9 +61,10 @@ function detail(k: Layer, r: Raw): string {
   switch (k) {
     case 'noise': {
       const near = ROADS.map((c) => ({ c, d: r[c] })).sort((a, b) => a.d - b.d)[0];
-      const parts = [near.d < distCap(near.c) ? t.roadAt(near.d, t.road[near.c], distCap(near.c)) : t.noRoad];
-      if (r.rail < NOISE_RANGE.rail * 2) parts.push(t.railAt(r.rail, distCap('rail')));
-      if (r.air < NOISE_RANGE.air * 2) parts.push(t.airAt(r.air, distCap('air')));
+      const sc = (k: Parameters<typeof screenBit>[0]) => (r.screen & screenBit(k) ? ` (${t.screened})` : '');
+      const parts = [near.d < distCap(near.c) ? t.roadAt(near.d, t.road[near.c], distCap(near.c)) + sc(near.c) : t.noRoad];
+      if (r.rail < NOISE_RANGE.rail * 2) parts.push(t.railAt(r.rail, distCap('rail')) + sc('rail'));
+      if (r.air < NOISE_RANGE.air * 2) parts.push(t.airAt(r.air, distCap('air')) + sc('air'));
       return parts.join(', ');
     }
     case 'dark': return `${t.light(r.light)} · ${t.bortle(bortle(r.light))}`;

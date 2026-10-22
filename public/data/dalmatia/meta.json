@@ -1,0 +1,76 @@
+{
+ "region": "dalmatia",
+ "bbox": {
+  "west": 15.9,
+  "south": 42.89995354177285,
+  "east": 17.8,
+  "north": 43.95
+ },
+ "cols": 615,
+ "rows": 468,
+ "cell": 250,
+ "dLon": 0.0030894308943089435,
+ "planes": [
+  "mask",
+  "motorway",
+  "trunk",
+  "primary",
+  "secondary",
+  "tertiary",
+  "local",
+  "rail",
+  "air",
+  "building",
+  "tower",
+  "light",
+  "pop",
+  "forest",
+  "water",
+  "open",
+  "screen"
+ ],
+ "built": "2026-10-22",
+ "sources": {
+  "dem": "Copernicus DEM GLO-90",
+  "osm": "2026-10-21",
+  "buildings": {
+   "fetched": "2026-10-22",
+   "count": 297129
+  },
+  "light": {
+   "source": "GIBS VIIRS_SNPP_GapFilled_BRDF_Corrected_DayNightBand_Radiance",
+   "year": "2025",
+   "dates": 24,
+   "z": 8,
+   "px0": 35584,
+   "py0": 23808,
+   "w": 512,
+   "h": 512
+  },
+  "landcover": "ESA WorldCover 2021 v200",
+  "pop": "WorldPop 2020 unconstrained 100 m"
+ },
+ "cells": 72084,
+ "screened": 32422,
+ "bytes": 885328,
+ "scoresBytes": 170950,
+ "meanEncoded": {
+  "mask": 1,
+  "motorway": 170.6,
+  "trunk": 201.7,
+  "primary": 53.6,
+  "secondary": 46.8,
+  "tertiary": 39.3,
+  "local": 33.1,
+  "rail": 229.9,
+  "air": 208.2,
+  "building": 14.5,
+  "tower": 45.4,
+  "light": 91.4,
+  "pop": 80.8,
+  "forest": 24.3,
+  "water": 1.9,
+  "open": 21.7,
+  "screen": 5.1
+ }
+}

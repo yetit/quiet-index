@@ -1,12 +1,13 @@
 // Предрасчёт растра региона из сырых выгрузок data/<id>/raw → public/data/<id>/grid.gz + meta.json.
 // Расстояния: дороги/точки растрируются на подсетке в 5 раз мельче клетки (~50 м), затем точное EDT и выборка в центрах клеток.
 // Плотность и покрытие: суммы по окну ~2×2 км вокруг центра клетки через интегральные таблицы.
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { gzipSync } from 'node:zlib';
 import { fromFile } from 'geotiff';
 import { getRegion } from '../regions.config.mjs';
-import { centerOf, gridFor, mercY, metersPerCell, type GridMeta } from '../src/core/grid.ts';
-import { PLANES, deltaEncode, encode, type Plane } from '../src/core/layers.ts';
+import { centerOf, gridFor, mercLat, mercY, metersPerCell, type GridMeta } from '../src/core/grid.ts';
+import { LAYERS, NOISE_RANGE, SCORE_PLANES, scores } from '../src/core/index.ts';
+import { PLANES, SCREEN_BITS, encode, packPlanes, rawAt, screenBit, type Plane } from '../src/core/layers.ts';
 import { INF, edt } from './edt.mjs';
 
 const region = getRegion(process.argv[2]);
@@ -24,6 +25,9 @@ const lightMeta = JSON.parse(readFileSync(`${raw}/light.json`, 'utf8'));
 const light = typed(`${raw}/light.bin`, Float32Array);
 const lcMeta = JSON.parse(readFileSync(`${raw}/landcover.json`, 'utf8'));
 const lc = typed(`${raw}/landcover.bin`, Uint8Array);
+// Рельеф для линии видимости — если выгружен (fetch-dem.mjs); без него план screen пустой.
+const dem = existsSync(`${raw}/dem.bin`) ? { meta: JSON.parse(readFileSync(`${raw}/dem.json`, 'utf8')), z: typed(`${raw}/dem.bin`, Int16Array) } : null;
+const elev = (lon: number, lat: number) => { if (!dem) return 0; const x = Math.floor((lon - dem.meta.west) / dem.meta.step), y = Math.floor((dem.meta.north - lat) / dem.meta.step); const v = x >= 0 && x < dem.meta.cols && y >= 0 && y < dem.meta.rows ? dem.z[y * dem.meta.cols + x] : -32768; return v === -32768 ? 0 : v; };
 
 const g: GridMeta = gridFor(region.bbox, region.cell);
 const { cols, rows } = g;
@@ -53,23 +57,43 @@ log(`маска: ${inside} клеток суши внутри границы`);
 // --- Расстояния: подсетка F×, EDT, выборка в центре клетки. Метры — по размеру клетки на строке.
 const F = 5, W = cols * F, H = rows * F;
 const field = new Float32Array(W * H);
+const srcIdx = new Int32Array(W * H);
+// Линия видимости между центром клетки (1,5 м над землёй) и точкой источника (0,5 м): рельеф по DEM с шагом ~90 м.
+function blocked(a: [number, number], b: [number, number], distM: number) {
+  const n = Math.min(60, Math.ceil(distM / 90));
+  if (n < 2) return false;
+  const za = elev(a[0], a[1]) + 1.5, zb = elev(b[0], b[1]) + 0.5;
+  for (let k = 1; k < n; k++) { const f = k / n; if (elev(a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f) > za + (zb - za) * f + 1) return true; }
+  return false;
+}
+const subCenter = (si: number): [number, number] => { const sy = Math.floor(si / W), sx = si % W; return [g.bbox.west + ((sx + 0.5) / F) * g.dLon, mercLat(Y0 - ((sy + 0.5) / F) * rad(g.dLon))]; };
+let screened = 0;
 const sx = (lon: number) => ((lon - g.bbox.west) / g.dLon) * F;
 const sy = (lat: number) => ((Y0 - mercY(lat)) / rad(g.dLon)) * F;
-const mark = (x: number, y: number) => { if (x >= 0 && x < W && y >= 0 && y < H) field[(y | 0) * W + (x | 0)] = 0; };
+const mark = (x: number, y: number) => { if (x >= 0 && x < W && y >= 0 && y < H) { const i = (y | 0) * W + (x | 0); field[i] = 0; srcIdx[i] = i; } };
 function distancePlane(p: Plane, lines: number[][][], pts: ArrayLike<number>) {
   field.fill(INF);
+  srcIdx.fill(-1);
   for (const l of lines) for (let i = 1; i < l.length; i++) {
     const [x1, y1, x2, y2] = [sx(l[i - 1][0]), sy(l[i - 1][1]), sx(l[i][0]), sy(l[i][1])];
     const n = Math.ceil(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) * 2) || 1;
     for (let k = 0; k <= n; k++) mark(x1 + ((x2 - x1) * k) / n, y1 + ((y2 - y1) * k) / n);
   }
   for (let i = 0; i < pts.length; i += 2) mark(sx(pts[i]), sy(pts[i + 1]));
-  edt(field, W, H);
+  const noiseKey = (SCREEN_BITS as readonly string[]).includes(p) ? (p as keyof typeof NOISE_RANGE) : null;
+  edt(field, W, H, dem && noiseKey ? srcIdx : undefined);
+  let shadow = 0;
   for (let r = 0; r < rows; r++) {
     const m = metersPerCell(g, r) / F;
-    for (let c = 0; c < cols; c++) planes[p][r * cols + c] = encode(p, Math.sqrt(field[(r * F + 2) * W + c * F + 2]) * m);
+    for (let c = 0; c < cols; c++) {
+      const i = r * cols + c, si = (r * F + 2) * W + c * F + 2, d = Math.sqrt(field[si]) * m;
+      planes[p][i] = encode(p, d);
+      // Экранирование считаем только там, где оно меняет оценку: источник слышен (d < радиус), но не вплотную.
+      if (dem && noiseKey && planes.mask[i] && d > 150 && d < NOISE_RANGE[noiseKey] && srcIdx[si] >= 0 && blocked(centerOf(g, c, r), subCenter(srcIdx[si]), d)) { planes.screen[i] |= screenBit(noiseKey); shadow++; }
+    }
   }
-  log(`${p}: ${lines.length} линий, ${pts.length / 2} точек`);
+  screened += shadow;
+  log(`${p}: ${lines.length} линий, ${pts.length / 2} точек${noiseKey && dem ? `, за хребтом ${shadow}` : ''}`);
 }
 for (const k of ['motorway', 'trunk', 'primary', 'secondary', 'tertiary', 'local'] as const) distancePlane(k, osm.roads.filter((r: { cls: string }) => r.cls === k).map((r: { coords: number[][] }) => r.coords), []);
 distancePlane('rail', osm.rail, []);
@@ -139,17 +163,20 @@ for (let r = 0; r < rows; r++) {
 }
 log('покрытие земли');
 
-// --- Запись: планарно, дельты по строкам, gzip.
-const buf = new Uint8Array(N * PLANES.length);
-PLANES.forEach((p, i) => buf.set(deltaEncode(planes[p], cols), i * N));
+// --- Запись: планарно, дельты по строкам, gzip. grid.gz — измерения, scores.gz — маска и готовые оценки для первого кадра.
+const buf = packPlanes(planes, PLANES, cols);
 const gz = gzipSync(buf, { level: 9 });
 writeFileSync(`${out}/grid.gz`, gz);
+const sc = Object.fromEntries(SCORE_PLANES.map((p) => [p, p === 'mask' ? planes.mask : new Uint8Array(N)])) as Record<(typeof SCORE_PLANES)[number], Uint8Array>;
+for (let i = 0; i < N; i++) if (planes.mask[i]) { const s = scores(rawAt({ cols, rows, planes }, i)); for (const k of LAYERS) sc[k][i] = s[k]; }
+const sgz = gzipSync(packPlanes(sc, SCORE_PLANES, cols), { level: 9 });
+writeFileSync(`${out}/scores.gz`, sgz);
 const stats: Record<string, number> = {};
 for (const p of PLANES) { let s = 0, n = 0; for (let i = 0; i < N; i++) if (planes.mask[i]) { s += planes[p][i]; n++; } stats[p] = +(s / n).toFixed(1); }
 const meta = {
   region: region.id, bbox: g.bbox, cols, rows, cell: region.cell, dLon: g.dLon, planes: PLANES, built: new Date().toISOString().slice(0, 10),
-  sources: { osm: osm.fetched, buildings: JSON.parse(readFileSync(`${raw}/buildings.json`, 'utf8')), light: lightMeta, landcover: lcMeta.source, pop: 'WorldPop 2020 unconstrained 100 m' },
-  cells: inside, bytes: gz.length, meanEncoded: stats,
+  sources: { dem: dem?.meta.source ?? null, osm: osm.fetched, buildings: JSON.parse(readFileSync(`${raw}/buildings.json`, 'utf8')), light: lightMeta, landcover: lcMeta.source, pop: 'WorldPop 2020 unconstrained 100 m' },
+  cells: inside, screened, bytes: gz.length, scoresBytes: sgz.length, meanEncoded: stats,
 };
 writeFileSync(`${out}/meta.json`, JSON.stringify(meta, null, 1));
-log(`${out}/grid.gz: ${(gz.length / 1024).toFixed(0)} КБ (${(buf.length / 1024).toFixed(0)} КБ без сжатия)`);
+log(`${out}/grid.gz: ${(gz.length / 1024).toFixed(0)} КБ (${(buf.length / 1024).toFixed(0)} КБ без сжатия), scores.gz: ${(sgz.length / 1024).toFixed(0)} КБ`);

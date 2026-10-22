@@ -26,10 +26,12 @@
   "pop",
   "forest",
   "water",
-  "open"
+  "open",
+  "screen"
  ],
  "built": "2026-10-21",
  "sources": {
+  "dem": "Copernicus DEM GLO-90",
   "osm": "2026-10-21",
   "buildings": {
    "fetched": "2026-10-21",
@@ -49,7 +51,9 @@
   "pop": "WorldPop 2020 unconstrained 100 m"
  },
  "cells": 218808,
- "bytes": 1448361,
+ "screened": 37343,
+ "bytes": 1475420,
+ "scoresBytes": 367309,
  "meanEncoded": {
   "mask": 1,
   "motorway": 242.1,
@@ -66,6 +70,7 @@
   "pop": 67.5,
   "forest": 30.4,
   "water": 0.4,
-  "open": 18.2
+  "open": 18.2,
+  "screen": 2.8
  }
 }

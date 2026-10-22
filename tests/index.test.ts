@@ -2,11 +2,11 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { DEFAULT_WEIGHTS, LAYERS, bortle, index, indexAll, parseWeights, scores, weightsParam } from '../src/core/index.ts';
-import { PLANES, decode, deltaDecode, deltaEncode, distCap, encode, rawAt, splitPlanes, type Raw } from '../src/core/layers.ts';
+import { PLANES, decode, deltaDecode, deltaEncode, distCap, encode, rawAt, screenBit, splitPlanes, type Raw } from '../src/core/layers.ts';
 import { cellOf, centerOf, gridFor, metersPerCell } from '../src/core/grid.ts';
 
 // Глушь: всё далеко, темно, пусто, лес.
-const wild: Raw = { motorway: 12750, trunk: 12750, primary: 6375, secondary: 12750, tertiary: 12750, local: 6375, rail: 12750, air: 25500, building: 6375, tower: 25500, light: 0.1, pop: 0, forest: 90, water: 5, open: 5 };
+const wild: Raw = { motorway: 12750, trunk: 12750, primary: 6375, secondary: 12750, tertiary: 12750, local: 6375, rail: 12750, air: 25500, building: 6375, tower: 25500, light: 0.1, pop: 0, forest: 90, water: 5, open: 5, screen: 0 };
 
 test('глушь: все оценки у максимума, связи нет', () => {
   const s = scores(wild);
@@ -21,6 +21,12 @@ test('у автомагистрали шумно, даже если осталь
   assert.equal(s.noise, 50);
   // Слабейший источник не улучшает оценку: tertiary в 400 м — тишина, motorway в 1250 м — всё ещё 50.
   assert.equal(scores({ ...wild, motorway: 1250, tertiary: 400 }).noise, 50);
+});
+
+test('за хребтом: автомагистраль в 1250 м без видимости — как в 3750 м', () => {
+  assert.equal(scores({ ...wild, motorway: 1250, screen: screenBit('motorway') }).noise, 100);
+  assert.equal(scores({ ...wild, motorway: 1250, screen: screenBit('rail') }).noise, 50);
+  assert.equal(decode('screen', encode('screen', 0b10100001)), 0b10100001);
 });
 
 test('улица в деревне: residential в 75 м — половина тишины, в 150 м — уже тихо', () => {

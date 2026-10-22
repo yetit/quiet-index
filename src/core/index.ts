@@ -1,16 +1,20 @@
 // Индекс тихого места: пять оценок 0–100 из сырых измерений клетки и их взвешенное среднее.
 // Все пороги здесь — эвристики, они видны пользователю (README → «Как считается»).
-import type { Raw } from './layers.ts';
+import { screenBit, type Raw } from './layers.ts';
 
 export const LAYERS = ['noise', 'dark', 'remote', 'nature', 'signal'] as const;
 export type Layer = (typeof LAYERS)[number];
 export type Weights = Record<Layer, number>;
 export type Scores = Record<Layer, number>;
 
+// Планы файла scores.gz: маска и пять готовых оценок — этого хватает, чтобы сразу покрасить карту.
+export const SCORE_PLANES = ['mask', ...LAYERS] as const;
 export const DEFAULT_WEIGHTS: Weights = { noise: 35, dark: 25, remote: 20, nature: 20, signal: 0 };
 
 // Шум: за этим расстоянием (м) источник считается неслышным; ближе — линейно до 0 у самой дороги.
 export const NOISE_RANGE = { motorway: 2500, trunk: 2000, primary: 1200, secondary: 700, tertiary: 400, local: 150, rail: 1000, air: 4000 } as const; // local — residential и unclassified: улицы и проезды
+// Источник за хребтом (нет линии видимости по DEM): расстояние считаем втрое большим — грубо −5 дБ для линейного источника.
+export const SCREEN = 3;
 export const LIGHT_DARK = 0.25, LIGHT_BRIGHT = 50; // нВт/(см²·ср): темно ≤ 0,25, город ≥ 50 (лог-шкала)
 export const POP_MAX = 5000; // чел/км²: такая плотность и выше — 0 (лог-шкала)
 export const BUILDING_FAR = 1000; // м до ближайшего здания, где «безлюдье» по домам = 100
@@ -21,7 +25,7 @@ const pct = (x: number) => Math.round(100 * clamp01(x));
 
 export function scores(r: Raw): Scores {
   let noise = 1;
-  for (const k of Object.keys(NOISE_RANGE) as (keyof typeof NOISE_RANGE)[]) noise = Math.min(noise, r[k] / NOISE_RANGE[k]);
+  for (const k of Object.keys(NOISE_RANGE) as (keyof typeof NOISE_RANGE)[]) noise = Math.min(noise, (r[k] * (r.screen & screenBit(k) ? SCREEN : 1)) / NOISE_RANGE[k]);
   const dark = 1 - Math.log(Math.max(r.light, LIGHT_DARK) / LIGHT_DARK) / Math.log(LIGHT_BRIGHT / LIGHT_DARK);
   const people = 1 - Math.log10(1 + r.pop) / Math.log10(1 + POP_MAX);
   const remote = (clamp01(people) + clamp01(r.building / BUILDING_FAR)) / 2;
