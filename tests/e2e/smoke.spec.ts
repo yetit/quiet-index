@@ -49,6 +49,7 @@ test.describe('геолокация и офлайн', () => {
     const sw = await page.evaluate(() => navigator.serviceWorker?.getRegistration().then((r) => !!r));
     test.skip(!sw, 'dev-сервер без service worker');
     await page.waitForFunction(() => performance.getEntriesByName('qi:cached').length > 0, null, { timeout: 60_000 });
+    expect((await page.evaluate(() => caches.keys())).some((k) => k.startsWith('qi-app-'))).toBe(true);
     await context.setOffline(true);
     await page.reload();
     await expect(page.locator('.score')).toHaveText(/^\d+$/, { timeout: 30_000 });

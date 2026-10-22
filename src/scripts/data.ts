@@ -15,13 +15,16 @@ async function gunzip(r: Response) {
   return new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());
 }
 
+// Версия данных региона из data-v на body (index.astro) — та же, что в preload.
+const v = (id: string) => (JSON.parse(document.body.dataset.v ?? '{}') as Record<string, string>)[id] ?? '';
+
 export async function loadScores(base: string, id: string): Promise<Data> {
   const [meta, buf] = await Promise.all([
-    fetch(`${base}data/${id}/meta.json`).then((r) => (r.ok ? (r.json() as Promise<Meta>) : Promise.reject(new Error(`meta ${r.status}`)))),
-    fetch(`${base}data/${id}/scores.gz`).then(gunzip),
+    fetch(`${base}data/${id}/meta.json?v=${v(id)}`).then((r) => (r.ok ? (r.json() as Promise<Meta>) : Promise.reject(new Error(`meta ${r.status}`)))),
+    fetch(`${base}data/${id}/scores.gz?v=${v(id)}`).then(gunzip),
   ]);
   const { mask, ...scores } = unpackPlanes(buf, SCORE_PLANES, meta.cols, meta.rows);
   return { meta, mask, scores };
 }
 
-export const loadGrid = (base: string, id: string, meta: Meta): Promise<Grid> => fetch(`${base}data/${id}/grid.gz`).then(gunzip).then((buf) => splitPlanes(buf, meta.cols, meta.rows));
+export const loadGrid = (base: string, id: string, meta: Meta): Promise<Grid> => fetch(`${base}data/${id}/grid.gz?v=${v(id)}`).then(gunzip).then((buf) => splitPlanes(buf, meta.cols, meta.rows));

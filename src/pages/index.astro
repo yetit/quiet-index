@@ -2,6 +2,9 @@
 import { regions } from '../../regions.config.mjs';
 const names = regions.map((r) => r.name.en).join(', ');
 const base = import.meta.env.BASE_URL;
+// Версия данных каждого региона (дата сборки + размер) — в URL файлов, чтобы кэш service worker не отдал старый формат.
+const metas = import.meta.glob<{ built: string; bytes: number }>('../../public/data/*/meta.json', { eager: true, import: 'default' });
+const dataV = Object.fromEntries(Object.entries(metas).map(([p, m]) => [p.split('/').at(-2), `${m.built}-${m.bytes}`]));
 ---
 
 <!doctype html>
@@ -20,16 +23,16 @@ const base = import.meta.env.BASE_URL;
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <!-- Данные региона из ?r= начинают грузиться до разбора скрипта. -->
-    <script is:inline define:vars={{ base, ids: regions.map((r) => r.id) }}>
+    <script is:inline define:vars={{ base, ids: regions.map((r) => r.id), dataV }}>
       const r = new URL(location.href).searchParams.get('r');
       const id = ids.includes(r) ? r : ids[0];
-      for (const f of ['scores.gz', 'meta.json']) { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'fetch'; l.crossOrigin = 'anonymous'; l.href = `${base}data/${id}/${f}`; document.head.append(l); }
+      for (const f of ['scores.gz', 'meta.json']) { const l = document.createElement('link'); l.rel = 'preload'; l.as = 'fetch'; l.crossOrigin = 'anonymous'; l.href = `${base}data/${id}/${f}?v=${dataV[id] ?? ''}`; document.head.append(l); }
     </script>
     <link rel="manifest" href={`${base}manifest.webmanifest`} />
     <link rel="apple-touch-icon" href={`${base}icons/icon-192.png`} />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%232f8a72'/%3E%3Ccircle cx='16' cy='16' r='6' fill='%23fbfaf7'/%3E%3C/svg%3E" />
   </head>
-  <body data-sheet="peek">
+  <body data-sheet="peek" data-v={JSON.stringify(dataV)}>
     <div id="map" class="map" role="region" data-i-aria="mapAria"></div>
 
     <div class="legend-box">
