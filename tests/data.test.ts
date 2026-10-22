@@ -26,3 +26,15 @@ for (const { id } of regions) {
   });
 }
 function existsOr(id: string) { try { readFileSync(`public/data/${id}/scores.gz`); return true; } catch { return false; } }
+
+import { cellOf } from '../src/core/grid.ts';
+for (const r of regions) {
+  test(`${r.id}: примеры-точки лежат на суше внутри маски`, { skip: !existsOr(r.id) }, () => {
+    const meta = JSON.parse(readFileSync(`public/data/${r.id}/meta.json`, 'utf8'));
+    const sc = unpackPlanes(gunzipSync(readFileSync(`public/data/${r.id}/scores.gz`)), SCORE_PLANES, meta.cols, meta.rows);
+    for (const e of r.examples) {
+      const c = cellOf(meta, e.p[0], e.p[1]);
+      assert.ok(c && sc.mask[c.row * meta.cols + c.col] === 1, `${e.name.ru} (${e.p}) вне маски`);
+    }
+  });
+}

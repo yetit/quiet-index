@@ -13,7 +13,7 @@ export const regions = [
     worldpop: 'MNE', // код страны в WorldPop
     examples: [
       { name: { ru: 'Дурмитор, у Жабляка', en: 'Durmitor near Žabljak' }, p: [19.08, 43.15] },
-      { name: { ru: 'Пивское озеро у Плужине', en: 'Piva lake near Plužine' }, p: [18.84, 43.16] },
+      { name: { ru: 'Берег Пивского озера у Плужине', en: 'Piva lake shore near Plužine' }, p: [18.8382, 43.1617] },
       { name: { ru: 'Будва, набережная', en: 'Budva seafront' }, p: [18.84, 42.2865] },
     ],
   },
