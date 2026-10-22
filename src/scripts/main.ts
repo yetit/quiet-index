@@ -76,8 +76,8 @@ $('.built').textContent = `${data.meta.built} · ${data.meta.cells.toLocaleStrin
 const b = data.meta.bbox;
 if (!state.point) showEmpty(); // подсказка — сразу, не дожидаясь карты
 // Даём браузеру кадр показать панель до того, как главный поток займёт разбор MapLibre (~1 МБ JS).
-// В скрытой вкладке rAF не приходит — тогда просто уступаем очередь.
-await new Promise((r) => (document.hidden ? setTimeout(r, 0) : requestAnimationFrame(() => setTimeout(r, 0))));
+// Вкладка без кадров (скрыта, свёрнута, фоновая панель) rAF не даёт — ждём не дольше 100 мс.
+await new Promise((r) => { const t = setTimeout(r, 100); requestAnimationFrame(() => { clearTimeout(t); setTimeout(r, 0); }); });
 M = await import('./map/map.ts');
 M.initMap(data.meta, [b.west, b.south, b.east, b.north]);
 repaint();

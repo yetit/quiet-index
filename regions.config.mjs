@@ -83,7 +83,7 @@ export const regions = [
     boundary: { iso: 'RS' },
     worldpop: 'SRB',
     examples: [
-      { name: { ru: 'Тара, Заовине', en: 'Tara, Zaovine' }, p: [19.4, 43.88] },
+      { name: { ru: 'Тара, Митровац', en: 'Tara, Mitrovac' }, p: [19.45, 43.92] },
       { name: { ru: 'Увац, меандры', en: 'Uvac meanders' }, p: [19.86, 43.48] },
       { name: { ru: 'Белград, Теразие', en: 'Belgrade, Terazije' }, p: [20.46, 44.816] },
     ],
