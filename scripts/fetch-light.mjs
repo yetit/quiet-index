@@ -5,6 +5,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { PNG } from 'pngjs';
 import { getRegion } from '../regions.config.mjs';
+import { fetchRetry } from './download.mjs';
 
 const region = getRegion(process.argv[2]);
 const YEAR = process.env.LIGHT_YEAR ?? '2025';
@@ -14,7 +15,7 @@ const dir = `data/${region.id}/raw`;
 mkdirSync(dir, { recursive: true });
 
 // Цветовая карта GIBS: серый уровень → середина бина радиометрии.
-const cmapXml = await (await fetch('https://gibs.earthdata.nasa.gov/colormaps/v1.3/VIIRS_DayNightBand_At_Sensor_Radiance.xml')).text();
+const cmapXml = await (await fetchRetry('https://gibs.earthdata.nasa.gov/colormaps/v1.3/VIIRS_DayNightBand_At_Sensor_Radiance.xml')).text();
 const gray = new Map();
 for (const m of cmapXml.matchAll(/rgb="(\d+),\d+,\d+"[^>]*value="\[([\d.]+),([\d.]+)[)\]]"/g)) {
   const [lo, hi] = [+m[2], +m[3]];
@@ -34,7 +35,7 @@ const samples = Array.from({ length: W * H }, () => []);
 for (const date of dates) {
   for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
     const url = `https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/${LAYER}/default/${date}/GoogleMapsCompatible_Level8/${Z}/${y}/${x}.png`;
-    const res = await fetch(url);
+    const res = await fetchRetry(url);
     if (!res.ok) { console.warn(`${date} ${y}/${x}: ${res.status}`); continue; }
     const png = PNG.sync.read(Buffer.from(await res.arrayBuffer()));
     for (let j = 0; j < 256; j++) for (let i = 0; i < 256; i++) {

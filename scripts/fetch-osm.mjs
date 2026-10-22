@@ -2,11 +2,10 @@
 // (PBF страны и её соседей: у границы важны и чужие дороги; файлы общие, в data/pbf/). Два прохода по каждому файлу:
 // relations (граница, аэродромы-мультиполигоны), затем узлы в bbox и way. Результат: data/<id>/raw/osm.json и
 // buildings.bin (Float32 пары lon, lat).
-import { createWriteStream, existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { basename } from 'node:path';
-import { Readable } from 'node:stream';
-import { pipeline } from 'node:stream/promises';
 import { getRegion } from '../regions.config.mjs';
+import { download } from './download.mjs';
 import { blocks, readBlock } from './pbf.mjs';
 
 const region = getRegion(process.argv[2]);
@@ -21,9 +20,7 @@ for (const g of region.geofabrik) {
   if (!existsSync(pbf) || (process.argv.includes('--force') && !fresh)) {
     const url = `https://download.geofabrik.de/${g}-latest.osm.pbf`;
     console.log(`${url} …`);
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Geofabrik ${res.status}: ${url}`);
-    await pipeline(Readable.fromWeb(res.body), createWriteStream(pbf));
+    await download(url, pbf);
   }
   pbfs.push(pbf);
 }
