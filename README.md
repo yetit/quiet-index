@@ -105,6 +105,6 @@ node scripts/og.ts                      # OG image from a running server
 npm run build
 ```
 
-CI: `deploy.yml` (check, tests, build, GitHub Pages) and `live.yml` after each deploy — Playwright smoke against the live demo plus Lighthouse (mobile profile, three runs, median) with thresholds in `lighthouserc.json` set from local measurements with a margin. MapLibre loads as a separate chunk after the panel is on screen; the first paint of the map needs only `scores.gz`.
+CI: `deploy.yml` (check, tests, build, GitHub Pages) and `live.yml` after each deploy — Playwright smoke against the live demo plus Lighthouse (mobile profile, three runs, median) with thresholds in `lighthouserc.json` set below measured values: on the runner the map page scores 57 / 100 / 100 / 100 (LCP 5.0 s, TBT 0.85 s, mobile profile), the method page 100 across the board; thresholds are 0.45 and 0.9 for performance, 0.95 for the rest. MapLibre loads as a separate chunk after the panel is on screen; the first paint of the map needs only `scores.gz`.
 
 Node ≥ 22.22 (`.nvmrc` = 24). Astro 7, MapLibre GL JS 6, no framework. Files: `src/core/` — grid geometry, plane encoding, scoring (shared by the build script, the browser and the tests); `src/scripts/` — the page; `scripts/` — data pipeline.
