@@ -27,6 +27,7 @@
     "@types/node": "^24.19.2",
     "@types/pngjs": "^6.0.5",
     "geotiff": "^3.0.5",
+    "pbf": "^5.1.2",
     "pngjs": "^7.0.0",
     "typescript": "^6.0.3"
   },

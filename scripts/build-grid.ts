@@ -114,8 +114,8 @@ for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
 log(`свет: ${lit} клеток с данными`);
 
 // --- Интегральная таблица для сумм по окну.
-const sat = (w: number, h: number, at: (i: number) => number) => {
-  const s = new Float64Array((w + 1) * (h + 1));
+const sat = (w: number, h: number, at: (i: number) => number, Arr: Float64ArrayConstructor | Uint32ArrayConstructor = Float64Array) => {
+  const s = new Arr((w + 1) * (h + 1));
   for (let y = 1; y <= h; y++) for (let x = 1; x <= w; x++) s[y * (w + 1) + x] = at((y - 1) * w + x - 1) + s[(y - 1) * (w + 1) + x] + s[y * (w + 1) + x - 1] - s[(y - 1) * (w + 1) + x - 1];
   return (x0: number, y0: number, x1: number, y1: number) => { x0 = Math.max(0, x0); y0 = Math.max(0, y0); x1 = Math.min(w, x1); y1 = Math.min(h, y1); return x1 <= x0 || y1 <= y0 ? 0 : s[y1 * (w + 1) + x1] - s[y0 * (w + 1) + x1] - s[y1 * (w + 1) + x0] + s[y0 * (w + 1) + x0]; };
 };
@@ -142,10 +142,10 @@ log('плотность населения');
 
 // --- Покрытие земли: доли леса (10), воды (80) и открытых естественных земель (20, 30, 60, 70, 90, 100) в окне; 0 — нет данных.
 const OPEN = new Set([20, 30, 60, 70, 90, 100]);
-const forestSum = sat(lcMeta.w, lcMeta.h, (i) => (lc[i] === 10 ? 1 : 0));
-const waterSum = sat(lcMeta.w, lcMeta.h, (i) => (lc[i] === 80 ? 1 : 0));
-const openSum = sat(lcMeta.w, lcMeta.h, (i) => (OPEN.has(lc[i]) ? 1 : 0));
-const validSum = sat(lcMeta.w, lcMeta.h, (i) => (lc[i] ? 1 : 0));
+const forestSum = sat(lcMeta.w, lcMeta.h, (i) => (lc[i] === 10 ? 1 : 0), Uint32Array);
+const waterSum = sat(lcMeta.w, lcMeta.h, (i) => (lc[i] === 80 ? 1 : 0), Uint32Array);
+const openSum = sat(lcMeta.w, lcMeta.h, (i) => (OPEN.has(lc[i]) ? 1 : 0), Uint32Array);
+const validSum = sat(lcMeta.w, lcMeta.h, (i) => (lc[i] ? 1 : 0), Uint32Array);
 for (let r = 0; r < rows; r++) {
   const lat = centerOf(g, 0, r)[1];
   const nx = Math.round(BOX / (111320 * Math.cos(rad(lat)) * lcMeta.res)), ny = Math.round(BOX / (111320 * lcMeta.res));

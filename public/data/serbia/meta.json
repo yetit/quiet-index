@@ -1,0 +1,76 @@
+{
+ "region": "serbia",
+ "bbox": {
+  "west": 18.8,
+  "south": 42.19905652589439,
+  "east": 23.1,
+  "north": 46.2
+ },
+ "cols": 1373,
+ "rows": 1783,
+ "cell": 250,
+ "dLon": 0.003131828113619811,
+ "planes": [
+  "mask",
+  "motorway",
+  "trunk",
+  "primary",
+  "secondary",
+  "tertiary",
+  "local",
+  "rail",
+  "air",
+  "building",
+  "tower",
+  "light",
+  "pop",
+  "forest",
+  "water",
+  "open",
+  "screen"
+ ],
+ "built": "2026-10-22",
+ "sources": {
+  "dem": "Copernicus DEM GLO-90",
+  "osm": "2026-10-22",
+  "buildings": {
+   "fetched": "2026-10-22",
+   "count": 3513357
+  },
+  "light": {
+   "source": "GIBS VIIRS_SNPP_GapFilled_BRDF_Corrected_DayNightBand_Radiance",
+   "year": "2025",
+   "dates": 24,
+   "z": 8,
+   "px0": 36096,
+   "py0": 23040,
+   "w": 1024,
+   "h": 1280
+  },
+  "landcover": "ESA WorldCover 2021 v200",
+  "pop": "WorldPop 2020 unconstrained 100 m"
+ },
+ "cells": 1232581,
+ "screened": 200497,
+ "bytes": 7649318,
+ "scoresBytes": 2165820,
+ "meanEncoded": {
+  "mask": 1,
+  "motorway": 212.7,
+  "trunk": 241.4,
+  "primary": 136.7,
+  "secondary": 79.7,
+  "tertiary": 75.7,
+  "local": 31.4,
+  "rail": 158.8,
+  "air": 234.4,
+  "building": 27,
+  "tower": 50.7,
+  "light": 85.1,
+  "pop": 77.3,
+  "forest": 23.1,
+  "water": 0.3,
+  "open": 9.5,
+  "screen": 2.8
+ }
+}

@@ -10,3 +10,4 @@ test-results/
 playwright-report/
 # Сырые выгрузки (OSM, растры) — большие, пересоздаются npm run fetch; в git только продукт public/data/
 data/*/raw/
+data/pbf/

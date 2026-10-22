@@ -32,10 +32,10 @@
  "built": "2026-10-22",
  "sources": {
   "dem": "Copernicus DEM GLO-90",
-  "osm": "2026-10-21",
+  "osm": "2026-10-22",
   "buildings": {
    "fetched": "2026-10-22",
-   "count": 297129
+   "count": 615001
   },
   "light": {
    "source": "GIBS VIIRS_SNPP_GapFilled_BRDF_Corrected_DayNightBand_Radiance",
@@ -51,9 +51,9 @@
   "pop": "WorldPop 2020 unconstrained 100 m"
  },
  "cells": 72084,
- "screened": 32422,
- "bytes": 885328,
- "scoresBytes": 170950,
+ "screened": 32418,
+ "bytes": 885234,
+ "scoresBytes": 170968,
  "meanEncoded": {
   "mask": 1,
   "motorway": 170.6,

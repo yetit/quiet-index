@@ -1,0 +1,76 @@
+{
+ "region": "bosnia",
+ "bbox": {
+  "west": 15.7,
+  "south": 42.49938619329062,
+  "east": 19.7,
+  "north": 45.3
+ },
+ "cols": 1284,
+ "rows": 1248,
+ "cell": 250,
+ "dLon": 0.003115264797507788,
+ "planes": [
+  "mask",
+  "motorway",
+  "trunk",
+  "primary",
+  "secondary",
+  "tertiary",
+  "local",
+  "rail",
+  "air",
+  "building",
+  "tower",
+  "light",
+  "pop",
+  "forest",
+  "water",
+  "open",
+  "screen"
+ ],
+ "built": "2026-10-22",
+ "sources": {
+  "dem": "Copernicus DEM GLO-90",
+  "osm": "2026-10-22",
+  "buildings": {
+   "fetched": "2026-10-22",
+   "count": 3239522
+  },
+  "light": {
+   "source": "GIBS VIIRS_SNPP_GapFilled_BRDF_Corrected_DayNightBand_Radiance",
+   "year": "2025",
+   "dates": 24,
+   "z": 8,
+   "px0": 35584,
+   "py0": 23296,
+   "w": 1024,
+   "h": 1024
+  },
+  "landcover": "ESA WorldCover 2021 v200",
+  "pop": "WorldPop 2020 unconstrained 100 m"
+ },
+ "cells": 823463,
+ "screened": 168557,
+ "bytes": 4684099,
+ "scoresBytes": 1322588,
+ "meanEncoded": {
+  "mask": 1,
+  "motorway": 234,
+  "trunk": 245.6,
+  "primary": 100.1,
+  "secondary": 80.3,
+  "tertiary": 104.8,
+  "local": 31.8,
+  "rail": 203.7,
+  "air": 227.5,
+  "building": 21.6,
+  "tower": 99.1,
+  "light": 76.4,
+  "pop": 81.9,
+  "forest": 33.1,
+  "water": 0.2,
+  "open": 13.3,
+  "screen": 3.2
+ }
+}

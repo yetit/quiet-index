@@ -1,0 +1,76 @@
+{
+ "region": "kosovo",
+ "bbox": {
+  "west": 19.95,
+  "south": 41.79946211032669,
+  "east": 21.85,
+  "north": 43.3
+ },
+ "cols": 624,
+ "rows": 669,
+ "cell": 250,
+ "dLon": 0.0030448717948717984,
+ "planes": [
+  "mask",
+  "motorway",
+  "trunk",
+  "primary",
+  "secondary",
+  "tertiary",
+  "local",
+  "rail",
+  "air",
+  "building",
+  "tower",
+  "light",
+  "pop",
+  "forest",
+  "water",
+  "open",
+  "screen"
+ ],
+ "built": "2026-10-22",
+ "sources": {
+  "dem": "Copernicus DEM GLO-90",
+  "osm": "2026-10-22",
+  "buildings": {
+   "fetched": "2026-10-22",
+   "count": 1150616
+  },
+  "light": {
+   "source": "GIBS VIIRS_SNPP_GapFilled_BRDF_Corrected_DayNightBand_Radiance",
+   "year": "2025",
+   "dates": 24,
+   "z": 8,
+   "px0": 36352,
+   "py0": 23808,
+   "w": 512,
+   "h": 768
+  },
+  "landcover": "ESA WorldCover 2021 v200",
+  "pop": "WorldPop 2020 unconstrained 100 m"
+ },
+ "cells": 174797,
+ "screened": 42788,
+ "bytes": 1365141,
+ "scoresBytes": 343268,
+ "meanEncoded": {
+  "mask": 1,
+  "motorway": 210.9,
+  "trunk": 228.4,
+  "primary": 113.8,
+  "secondary": 56.1,
+  "tertiary": 51.1,
+  "local": 22.9,
+  "rail": 178.3,
+  "air": 218.5,
+  "building": 15.6,
+  "tower": 66.6,
+  "light": 104,
+  "pop": 126.4,
+  "forest": 24.4,
+  "water": 0.1,
+  "open": 14.6,
+  "screen": 3.6
+ }
+}

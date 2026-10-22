@@ -1,0 +1,76 @@
+{
+ "region": "albania",
+ "bbox": {
+  "west": 19.2,
+  "south": 39.599646693158846,
+  "east": 21.1,
+  "north": 42.7
+ },
+ "cols": 638,
+ "rows": 1383,
+ "cell": 250,
+ "dLon": 0.0029780564263322917,
+ "planes": [
+  "mask",
+  "motorway",
+  "trunk",
+  "primary",
+  "secondary",
+  "tertiary",
+  "local",
+  "rail",
+  "air",
+  "building",
+  "tower",
+  "light",
+  "pop",
+  "forest",
+  "water",
+  "open",
+  "screen"
+ ],
+ "built": "2026-10-22",
+ "sources": {
+  "dem": "Copernicus DEM GLO-90",
+  "osm": "2026-10-22",
+  "buildings": {
+   "fetched": "2026-10-22",
+   "count": 1141122
+  },
+  "light": {
+   "source": "GIBS VIIRS_SNPP_GapFilled_BRDF_Corrected_DayNightBand_Radiance",
+   "year": "2025",
+   "dates": 24,
+   "z": 8,
+   "px0": 36096,
+   "py0": 24064,
+   "w": 768,
+   "h": 1024
+  },
+  "landcover": "ESA WorldCover 2021 v200",
+  "pop": "WorldPop 2020 unconstrained 100 m"
+ },
+ "cells": 450443,
+ "screened": 71250,
+ "bytes": 2645185,
+ "scoresBytes": 778781,
+ "meanEncoded": {
+  "mask": 1,
+  "motorway": 229.2,
+  "trunk": 216.4,
+  "primary": 145.1,
+  "secondary": 98.7,
+  "tertiary": 67.1,
+  "local": 39.4,
+  "rail": 217.2,
+  "air": 217.3,
+  "building": 21.8,
+  "tower": 90.3,
+  "light": 80.5,
+  "pop": 73.4,
+  "forest": 24.3,
+  "water": 0.7,
+  "open": 20.8,
+  "screen": 2.1
+ }
+}

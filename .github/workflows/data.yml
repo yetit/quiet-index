@@ -1,6 +1,5 @@
-# Раз в месяц заново выгружает данные всех регионов (OSM, ночной свет, население, покрытие, рельеф),
-# пересобирает растры и открывает PR, если продукт изменился. Overpass часто занят: scripts/overpass.mjs
-# перебирает зеркала, здесь — до трёх попыток на регион. PR от GITHUB_TOKEN не запускает другие workflow,
+# Раз в месяц заново выгружает данные всех регионов (выгрузки Geofabrik ~3 ГБ, ночной свет, население, покрытие,
+# рельеф), пересобирает растры и открывает PR, если продукт изменился. До трёх попыток на регион. PR от GITHUB_TOKEN не запускает другие workflow,
 # поэтому тесты гоняем здесь же. Нужно включить Settings → Actions → General →
 # «Allow GitHub Actions to create and approve pull requests».
 name: Update data
@@ -46,7 +45,7 @@ jobs:
           git commit -m "Данные: выгрузка $(date -u +%F)"
           git push -f origin data/update
           title="Данные: выгрузка $(date -u +%F)"
-          body="Ежемесячная выгрузка: OSM (Overpass), NASA Black Marble (GIBS), WorldPop, ESA WorldCover, Copernicus DEM; пересборка растров."
+          body="Ежемесячная выгрузка: OSM (Geofabrik), NASA Black Marble (GIBS), WorldPop, ESA WorldCover, Copernicus DEM; пересборка растров."
           if [ -s "$RUNNER_TEMP/failed" ]; then body="$body Не выгрузились за 3 попытки, оставлены как были: $(xargs < "$RUNNER_TEMP/failed")."; fi
           gh pr create --base "$GITHUB_REF_NAME" --head data/update --title "$title" --body "$body" || gh pr edit data/update --title "$title" --body "$body"
       - name: Failed regions

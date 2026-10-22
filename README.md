@@ -8,7 +8,18 @@
 
 Русская версия: [README.ru.md](README.ru.md).
 
-Regions: Montenegro (the whole country) and Dalmatia (Split-Dalmatia County, Croatia) on a ~250 m grid. The architecture is "any region": add a bounding box to `regions.config.mjs`, run one command, commit the result. The method, the thresholds and a cross-check against EU noise maps are on the [method page](https://yetit.github.io/quiet-index/method/).
+Regions: Montenegro, Albania, Bosnia and Herzegovina, Kosovo, Serbia and Dalmatia (Split-Dalmatia County, Croatia) on a ~250 m grid. The architecture is "any region": add a bounding box to `regions.config.mjs`, run one command, commit the result. The method, the thresholds and a cross-check against EU noise maps are on the [method page](https://yetit.github.io/quiet-index/method/).
+
+| Region | Land cells | `scores.gz` | `grid.gz` |
+|---|---|---|---|
+| Montenegro | 218 808 | 359 KB | 1.4 MB |
+| Dalmatia (Split-Dalmatia County) | 72 084 | 167 KB | 864 KB |
+| Albania | 450 443 | 761 KB | 2.6 MB |
+| Bosnia and Herzegovina | 823 463 | 1.3 MB | 4.6 MB |
+| Kosovo | 174 797 | 335 KB | 1.3 MB |
+| Serbia | 1 232 581 | 2.1 MB | 7.5 MB |
+
+The first file paints the map, the second feeds the panel; on a slow connection Serbia takes a few seconds to appear.
 
 ## What you see
 
@@ -53,7 +64,7 @@ Inside the contours the score is low and falls with Lden, so the ordering of the
 
 | Layer | Source | Licence | Notes |
 |---|---|---|---|
-| Roads, railways, airports, buildings, cell towers, region boundary | [OpenStreetMap](https://www.openstreetmap.org/copyright) via Overpass API | ODbL 1.0 | Roads: `motorway … tertiary` with their `_link`s, plus `residential` and `unclassified` as one "street" class. Airports: aerodromes with an IATA code plus runways longer than 1.5 km. Towers: `tower:type=communication`, `communication:mobile_phone=yes`, `man_made=communications_tower`. |
+| Roads, railways, airports, buildings, cell towers, region boundary | [OpenStreetMap](https://www.openstreetmap.org/copyright), [Geofabrik](https://download.geofabrik.de/) country extracts (PBF) | ODbL 1.0 | Roads: `motorway … tertiary` with their `_link`s, plus `residential` and `unclassified` as one "street" class. Airports: aerodromes with an IATA code plus runways longer than 1.5 km. Towers: `tower:type=communication`, `communication:mobile_phone=yes`, `man_made=communications_tower`. |
 | Night lights | NASA Black Marble **VNP46A2** (VIIRS DNB, gap-filled, BRDF- and moonlight-corrected daily radiance) served by [NASA GIBS](https://www.earthdata.nasa.gov/engage/open-data-services-and-software/api/gibs-api) | NASA data: no restrictions | GIBS serves palette PNGs; radiance is recovered from the published colour map (0.1 nW bins, saturates at 38.2). Annual value = median of 24 nights (1st and 15th of each month of 2025), ~450 m pixels at zoom 8. |
 | Population | [WorldPop](https://www.worldpop.org/) 2020, 100 m, unconstrained, country file | CC BY 4.0 | Sum over the country file is 615 212 people, consistent with the census. |
 | Land cover | [ESA WorldCover](https://esa-worldcover.org/) 2021 v200, 10 m | CC BY 4.0 | Read from the Cloud-Optimized GeoTIFF overview at 80 m with HTTP range requests, only the region window. |
@@ -77,7 +88,7 @@ The derived grid in `public/data/<region>/` mixes these sources; treat it as ODb
 - **Heuristics, not acoustics.** Road class stands in for traffic; wind, speed limits and time of day are ignored. Terrain screening is a single line-of-sight test to the nearest point of the source over a 90 m DEM: a ridge counts as a flat −5 dB, a tunnel portal or a viaduct is not recognised.
 - **Streets count only within 150 m.** `residential` and `unclassified` roads are a single class with a short range; `service`, `track` and paths are not sources at all. A busy village street and a dead-end lane look the same.
 - **250 m cells.** A click is matched to the cell centre, so distances can be off by up to ~180 m. Distances are stored in 25–100 m steps.
-- **OSM completeness.** Buildings in Montenegro are mapped well in towns and unevenly in villages; cell towers are mapped only sporadically. The "signal" layer is a hint, not coverage.
+- **OSM completeness.** Buildings are mapped well in towns and unevenly in villages; cell towers are mapped only sporadically. The "signal" layer is a hint, not coverage. Roads of neighbouring countries are included near borders only as far as the listed extracts reach.
 - **Night lights** are ~450 m pixels; snow cover, fires and ship lights can raise them; 2025 only.
 - **Population** is a 2020 model (WorldPop), tourists and seasonal residents are not in it: the coast in August is busier than the map says.
 - **Nature** is a land-cover share, not scenery. Bare high plateaus count as half-wild; pastures count as wild.
@@ -86,11 +97,11 @@ The derived grid in `public/data/<region>/` mixes these sources; treat it as ODb
 
 ## Add a region
 
-1. Add an entry to `regions.config.mjs`: `id`, bilingual `name`, `bbox`, `osmRelation` (the country/area relation id used as a mask), `worldpop` country code, `worldcover` tiles (3°×3°, named by their south-west corner).
-2. `npm run fetch -- <id>` — downloads OSM (roads, buildings by tiles, towers, boundary), night lights, WorldPop, WorldCover and the DEM into `data/<id>/raw/` (git-ignored), then builds `public/data/<id>/scores.gz`, `grid.gz` and `meta.json` (committed). A monthly GitHub Actions workflow (`data.yml`) re-fetches every region and opens a pull request when the product changes.
+1. Add an entry to `regions.config.mjs`: `id`, bilingual `name`, `bbox` (must contain the whole boundary), `geofabrik` paths (the region's extract first, then neighbours whose roads matter near the border), `boundary` (`{ iso: 'ME' }` for a country or `{ relation: id }` for any OSM boundary), `worldpop` country code, three `examples`.
+2. `npm run fetch -- <id>` — downloads the Geofabrik extracts (the country and its neighbours, shared in `data/pbf/`, read by `scripts/pbf.mjs` without Overpass), night lights, WorldPop, WorldCover and the DEM into `data/<id>/raw/` (git-ignored), then builds `public/data/<id>/scores.gz`, `grid.gz` and `meta.json` (committed). A monthly GitHub Actions workflow (`data.yml`) re-fetches every region and opens a pull request when the product changes.
 3. Open `/?r=<id>`. Thresholds in `src/core/index.ts` are global; check them against the new region.
 
-Overpass is slow and often busy: `scripts/overpass.mjs` rotates over several public mirrors and backs off; set `OVERPASS=<url>` to use your own.
+Extracts are read twice (relations first, then nodes within the bbox and ways); a country the size of Serbia with its neighbours takes a few minutes and about 1 GB of RAM for the node table.
 
 ## Development
 
