@@ -35,7 +35,7 @@
   "osm": "2026-10-22",
   "buildings": {
    "fetched": "2026-10-22",
-   "count": 3239522
+   "count": 2506081
   },
   "light": {
    "source": "GIBS VIIRS_SNPP_GapFilled_BRDF_Corrected_DayNightBand_Radiance",
