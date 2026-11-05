@@ -29,13 +29,13 @@
   "open",
   "screen"
  ],
- "built": "2026-10-22",
+ "built": "2026-11-05",
  "sources": {
   "dem": "Copernicus DEM GLO-90",
-  "osm": "2026-10-22",
+  "osm": "2026-11-05",
   "buildings": {
-   "fetched": "2026-10-22",
-   "count": 568671
+   "fetched": "2026-11-05",
+   "count": 572837
   },
   "light": {
    "source": "GIBS VIIRS_SNPP_GapFilled_BRDF_Corrected_DayNightBand_Radiance",
@@ -52,8 +52,8 @@
  },
  "cells": 218808,
  "screened": 37342,
- "bytes": 1475458,
- "scoresBytes": 367207,
+ "bytes": 1477176,
+ "scoresBytes": 365608,
  "meanEncoded": {
   "mask": 1,
   "motorway": 242.1,
@@ -66,7 +66,7 @@
   "air": 220.3,
   "building": 17.2,
   "tower": 112.4,
-  "light": 73.5,
+  "light": 71.5,
   "pop": 67.5,
   "forest": 30.4,
   "water": 0.4,
